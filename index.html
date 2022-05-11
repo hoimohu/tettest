@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>test</title>
+    <style>
+        html,
+        body,
+        canvas {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        #chat {
+            position: fixed;
+            bottom: 1%;
+            left: 0.5%;
+            width: 100%;
+        }
+
+        #chatinp {
+            width: 90%;
+        }
+
+        #chat button {
+            width: 8%;
+        }
+
+        #message {
+            transition: 0.5s;
+            position: fixed;
+            top: 10%;
+            left: 0px;
+            height: 80%;
+            opacity: 0.3;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+
+        #message::-webkit-scrollbar {
+            opacity: 0;
+        }
+
+        #message:hover {
+            opacity: 1;
+        }
+
+        #message div {
+            width: fit-content;
+            margin: 10px;
+            padding: 10px;
+            border-radius: 6px;
+            background-color: #fff;
+        }
+
+        .none {
+            display: none;
+        }
+
+        .flex {
+            display: flex;
+        }
+
+        .red {
+            color: red;
+        }
+
+        .blue {
+            color: blue;
+        }
+
+        .orange {
+            color: orange;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="chat" class="none">
+        <input type="text" id="chatinp" placeholder="ここに入力して相手に送信...">
+        <button onclick="chatsend()">送信</button>
+    </div>
+    <div id="message"></div>
+    <script src="glowing.min.js"></script>
+    <script src="field.js"></script>
+    <script src="game.js"></script>
+</body>
+
+</html>

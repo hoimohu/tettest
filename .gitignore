@@ -1,0 +1,6 @@
+/.vscode
+/icon.png
+/node_modules
+/package.json
+/server.js
+/yarn.lock
