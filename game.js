@@ -386,7 +386,9 @@ document.addEventListener('keydown', e => {
                 if (HNalpha === false) {
                     for (let n = -3; n < 5; n++) {
                         if (n === -3) {
-                            pfieldc.alpha = 0.2;
+                            if (pfieldc != null) {
+                                pfieldc.alpha = 0.2;
+                            }
                         } else if (n === -2) {
                             damagec.alpha = 0.6;
                         } else if (n === -1) {
@@ -399,7 +401,9 @@ document.addEventListener('keydown', e => {
                 } else {
                     for (let n = -3; n < 5; n++) {
                         if (n === -3) {
-                            pfieldc.alpha = 1;
+                            if (pfieldc != null) {
+                                pfieldc.alpha = 1;
+                            }
                         } else if (n === -2) {
                             damagec.alpha = 1;
                         } else if (n === -1) {
@@ -588,7 +592,7 @@ function minobag(hold = false) {
                 score += (damage * 100 + plusscore * 100);
                 scorei.setText('score: ' + score);
                 nowMino.render();
-                if (gamemode === 'battle') {
+                if (gamemode === 'battle' && hold === false) {
                     attackBattleFunction(damage);
                     battleFunction();
                 }

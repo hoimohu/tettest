@@ -12,20 +12,43 @@ let fieldc;
 let pfieldi;
 let pfieldc;
 
-let comspeed = 500;
 const ctr = {
-  rd: new KeyboardEvent("keydown", { repeat: false, key: "ArrowRight" }),
-  ld: new KeyboardEvent("keydown", { repeat: false, key: "ArrowLeft" }),
-  cd: new KeyboardEvent("keydown", { repeat: false, key: "c" }),
-  ud: new KeyboardEvent("keydown", { repeat: false, key: "ArrowUp" }),
-  zd: new KeyboardEvent("keydown", { repeat: false, key: "z" }),
-  sd: new KeyboardEvent("keydown", { repeat: false, key: "Space" }),
-  ru: new KeyboardEvent("keyup", { repeat: false, key: "ArrowRight" }),
-  lu: new KeyboardEvent("keyup", { repeat: false, key: "ArrowLeft" }),
-  cu: new KeyboardEvent("keyup", { repeat: false, key: "c" }),
-  uu: new KeyboardEvent("keyup", { repeat: false, key: "ArrowUp" }),
-  zu: new KeyboardEvent("keyup", { repeat: false, key: "z" }),
-  su: new KeyboardEvent("keyup", { repeat: false, key: "Space" }),
+  rd: new KeyboardEvent("keydown", {
+    key: "ArrowRight"
+  }),
+  ld: new KeyboardEvent("keydown", {
+    key: "ArrowLeft"
+  }),
+  cd: new KeyboardEvent("keydown", {
+    key: "c"
+  }),
+  ud: new KeyboardEvent("keydown", {
+    key: "ArrowUp"
+  }),
+  zd: new KeyboardEvent("keydown", {
+    key: "z"
+  }),
+  sd: new KeyboardEvent("keydown", {
+    key: " "
+  }),
+  ru: new KeyboardEvent("keyup", {
+    key: "ArrowRight"
+  }),
+  lu: new KeyboardEvent("keyup", {
+    key: "ArrowLeft"
+  }),
+  cu: new KeyboardEvent("keyup", {
+    key: "c"
+  }),
+  uu: new KeyboardEvent("keyup", {
+    key: "ArrowUp"
+  }),
+  zu: new KeyboardEvent("keyup", {
+    key: "z"
+  }),
+  su: new KeyboardEvent("keyup", {
+    key: " "
+  }),
   right: () => {
     document.dispatchEvent(ctr.rd);
     setTimeout(() => {
@@ -149,10 +172,11 @@ function send(m) {
 }
 
 function chatsend() {
-  if (
-    sendChatFunction != null &&
-    !chatinp.value.match(/^[\s　ᅟᅠ᠎​‌⁣‍⁠⁡⁢⁣⁤ㅤﾠ]*$/)
-  ) {
+  if (sendChatFunction != null && chatinp.value.match(/^\d+$/)) {
+    sendChatFunction('[変更]速さを' + chatinp.value + 'に変更しました');
+    comspeed = chatinp.value - 0;
+    chatinp.value = "";
+  } else if (sendChatFunction != null && !chatinp.value.match(/^[\s　ᅟᅠ᠎​‌⁣‍⁠⁡⁢⁣⁤ㅤﾠ]*$/)) {
     sendChatFunction(chatinp.value);
     chatinp.value = "";
   }
@@ -534,21 +558,294 @@ document.addEventListener("keyup", (e) => {
   }
 });
 
-function com() {
-  let count = 5 - Math.floor(Math.random() * 10);
-  function move() {
-    if (count < 0) {
-      count++;
-      ctr.left();
-      setTimeout(move, comspeed);
-    } else if (0 < count) {
-      count--;
-      ctr.right();
-      setTimeout(move, comspeed);
-    } else {
-      ctr.space();
+let comspeed = 100;
+let com_count = 0;
+let com_run = true;
+let com_hold = true;
+let com_pushedDiv = document.createElement("div");
+const com_field = new test_field(10, 50, com_pushedDiv, () => {
+  com_run = false;
+});
+const com_field2 = new test_field(10, 50, com_pushedDiv, () => {});
+
+function com(com_permhold) {
+  function com_aglmaxfunc(t) {
+    switch (t) {
+      case 'i':
+        return 2;
+      case 'o':
+        return 1;
+      case 's':
+      case 'z':
+        return 2;
+      default:
+        return 4;
     }
   }
+  com_count++;
+  const com_type = nowMino.type;
+  const com_type2 = nextMino[0];
+  const com_typehold = holdMino;
+  let com_aglmax = com_aglmaxfunc(com_type);
+  let com_aglmaxhold = com_aglmaxfunc(com_typehold);
+  let com_score = [false, false, false, false];
+  if (!com_run) return;
+  if (com_type === 'i' && com_count < 8) {
+    ctr.c();
+    return;
+  }
+  for (let n0 = 0; n0 < com_aglmax; n0++) {
+    for (let n1 = -5; n1 < 6; n1++) {
+      com_field.data = JSON.parse(JSON.stringify(main.data));
+      let com_ctrcount = n1;
+      let com_aglcount = n0;
+      const com_mino = new test_mino(com_type, com_field);
+      while (com_aglcount !== 0) {
+        com_aglcount--;
+        com_mino.control('ArrowUp');
+      }
+      while (com_ctrcount !== 0) {
+        if (com_ctrcount < 0) {
+          com_mino.control('ArrowLeft');
+          com_ctrcount++;
+        } else if (0 < com_ctrcount) {
+          com_mino.control('ArrowRight');
+          com_ctrcount--;
+        }
+      }
+      com_mino.control(' ');
+
+      for (let n02 = 0; n02 < 4; n02++) {
+        for (let n12 = -5; n12 < 6; n12++) {
+          com_field2.data = JSON.parse(JSON.stringify(com_field.data));
+          let com_ctrcount2 = n12;
+          let com_aglcount2 = n02;
+          const com_mino2 = new test_mino(com_type2, com_field2);
+          while (com_aglcount2 !== 0) {
+            com_aglcount2--;
+            com_mino2.control('ArrowUp');
+          }
+          while (com_ctrcount2 !== 0) {
+            if (com_ctrcount2 < 0) {
+              com_mino2.control('ArrowLeft');
+              com_ctrcount2++;
+            } else if (0 < com_ctrcount2) {
+              com_mino2.control('ArrowRight');
+              com_ctrcount2--;
+            }
+          }
+          com_mino2.control(' ');
+          let com_beforeexist;
+          let com_thisscore = 0;
+          let com_nowtop = 0;
+          let com_maintop = 0;
+          const com_onexist = [false, false, false, false, false, false, false, false, false, false];
+          for (let i1 = 0; i1 < com_field2.data.length; i1++) {
+            if (com_field2.data[i1].indexOf('') === -1) {
+              com_field2.data.splice(i1, 1);
+              const ins = [];
+              for (let i2 = 0; i2 < com_field2.width; i2++) {
+                ins.push('');
+              }
+              com_field2.data.unshift(ins);
+            }
+          }
+          for (let n3 = 0; n3 < com_field2.data.length; n3++) {
+            const element = com_field2.data[n3].join('');
+            if (element !== '') {
+              com_nowtop = n3;
+              break;
+            }
+          }
+          for (let n3 = 0; n3 < main.data.length; n3++) {
+            const element = main.data[n3].join('');
+            if (element !== '') {
+              com_maintop = n3;
+              break;
+            }
+          }
+          com_thisscore += 10 * (com_maintop - com_nowtop);
+          for (let n4 = com_nowtop; n4 < com_field2.data.length; n4++) {
+            const row = com_field2.data[n4];
+            for (let n5 = 0; n5 < row.length; n5++) {
+              const column = row[n5];
+              if (column !== '') {
+                if (com_beforeexist == null) {
+                  com_beforeexist = true;
+                } else if (com_beforeexist === false) {
+                  com_beforeexist = true;
+                  com_thisscore++;
+                }
+                if (com_onexist[n5] === false) {
+                  com_onexist[n5] = true;
+                  com_thisscore++;
+                }
+              } else {
+                if (com_beforeexist == null) {
+                  com_beforeexist = false;
+                } else if (com_beforeexist === true) {
+                  com_beforeexist = false;
+                  com_thisscore++;
+                }
+                if (com_onexist[n5] === true) {
+                  com_onexist[n5] = false;
+                  com_thisscore++;
+                }
+              }
+            }
+          }
+          if (com_score[0] === false || com_thisscore <= com_score[0]) {
+            com_score[0] = com_thisscore;
+            com_score[1] = n1;
+            com_score[2] = n0;
+            com_score[3] = 0;
+          }
+        }
+      }
+    }
+    if (com_typehold !== 'none' && com_hold && com_permhold) {
+      for (let n0 = 0; n0 < com_aglmaxhold; n0++) {
+        for (let n1 = -5; n1 < 6; n1++) {
+          com_field.data = JSON.parse(JSON.stringify(main.data));
+          let com_ctrcount = n1;
+          let com_aglcount = n0;
+          const com_mino = new test_mino(com_typehold, com_field);
+          while (com_aglcount !== 0) {
+            com_aglcount--;
+            com_mino.control('ArrowUp');
+          }
+          while (com_ctrcount !== 0) {
+            if (com_ctrcount < 0) {
+              com_mino.control('ArrowLeft');
+              com_ctrcount++;
+            } else if (0 < com_ctrcount) {
+              com_mino.control('ArrowRight');
+              com_ctrcount--;
+            }
+          }
+          com_mino.control(' ');
+
+          for (let n02 = 0; n02 < 4; n02++) {
+            for (let n12 = -5; n12 < 6; n12++) {
+              com_field2.data = JSON.parse(JSON.stringify(com_field.data));
+              let com_ctrcount2 = n12;
+              let com_aglcount2 = n02;
+              const com_mino2 = new test_mino(com_type, com_field2);
+              while (com_aglcount2 !== 0) {
+                com_aglcount2--;
+                com_mino2.control('ArrowUp');
+              }
+              while (com_ctrcount2 !== 0) {
+                if (com_ctrcount2 < 0) {
+                  com_mino2.control('ArrowLeft');
+                  com_ctrcount2++;
+                } else if (0 < com_ctrcount2) {
+                  com_mino2.control('ArrowRight');
+                  com_ctrcount2--;
+                }
+              }
+              com_mino2.control(' ');
+              let com_beforeexist;
+              let com_thisscore = 0;
+              let com_nowtop = 0;
+              let com_maintop = 0;
+              const com_onexist = [false, false, false, false, false, false, false, false, false, false];
+              for (let i1 = 0; i1 < com_field2.data.length; i1++) {
+                if (com_field2.data[i1].indexOf('') === -1) {
+                  com_field2.data.splice(i1, 1);
+                  const ins = [];
+                  for (let i2 = 0; i2 < com_field2.width; i2++) {
+                    ins.push('');
+                  }
+                  com_field2.data.unshift(ins);
+                }
+              }
+              for (let n3 = 0; n3 < com_field2.data.length; n3++) {
+                const element = com_field2.data[n3].join('');
+                if (element !== '') {
+                  com_nowtop = n3;
+                  break;
+                }
+              }
+              for (let n3 = 0; n3 < main.data.length; n3++) {
+                const element = main.data[n3].join('');
+                if (element !== '') {
+                  com_maintop = n3;
+                  break;
+                }
+              }
+              com_thisscore += 10 * (com_maintop - com_nowtop);
+              for (let n4 = com_nowtop; n4 < com_field2.data.length; n4++) {
+                const row = com_field2.data[n4];
+                for (let n5 = 0; n5 < row.length; n5++) {
+                  const column = row[n5];
+                  if (column !== '') {
+                    if (com_beforeexist == null) {
+                      com_beforeexist = true;
+                    } else if (com_beforeexist === false) {
+                      com_beforeexist = true;
+                      com_thisscore++;
+                    }
+                    if (com_onexist[n5] === false) {
+                      com_onexist[n5] = true;
+                      com_thisscore++;
+                    }
+                  } else {
+                    if (com_beforeexist == null) {
+                      com_beforeexist = false;
+                    } else if (com_beforeexist === true) {
+                      com_beforeexist = false;
+                      com_thisscore++;
+                    }
+                    if (com_onexist[n5] === true) {
+                      com_onexist[n5] = false;
+                      com_thisscore++;
+                    }
+                  }
+                }
+              }
+              if (com_score[0] === false || com_thisscore <= com_score[0]) {
+                com_score[0] = com_thisscore;
+                com_score[1] = n1;
+                com_score[2] = n0;
+                com_score[3] = 1;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  (function move() {
+    if (com_score[3] !== 0) {
+      setTimeout(() => {
+        com_score[3] = 0;
+        ctr.c();
+      }, comspeed);
+    } else if (com_score[2] !== 0) {
+      setTimeout(() => {
+        com_score[2]--;
+        ctr.up();
+        move();
+      }, comspeed);
+    } else if (com_score[1] < 0) {
+      setTimeout(() => {
+        com_score[1]++;
+        ctr.left();
+        move();
+      }, comspeed);
+    } else if (0 < com_score[1]) {
+      setTimeout(() => {
+        com_score[1]--;
+        ctr.right();
+        move();
+      }, comspeed);
+    } else {
+      setTimeout(() => {
+        ctr.space();
+      }, 60);
+    }
+  })();
 }
 
 function minobag(hold = false) {
@@ -701,7 +998,7 @@ function minobag(hold = false) {
         score += damage * 100 + plusscore * 100;
         scorei.setText("score: " + score);
         nowMino.render();
-        if (gamemode === "battle") {
+        if (gamemode === 'battle' && hold === false) {
           attackBattleFunction(damage);
           battleFunction();
         }
@@ -710,7 +1007,7 @@ function minobag(hold = false) {
         } else {
           permHold = true;
         }
-        com();
+        com(!hold);
       } else {
         nowMino.landing = true;
       }
@@ -728,6 +1025,8 @@ function minobag(hold = false) {
 }
 
 function start() {
+  com_count = 0;
+  com_run = true;
   rightLoopPerm = false;
   lrLoopCount = 0;
   leftLoopPerm = false;
@@ -783,6 +1082,8 @@ function start() {
 
 function battle() {
   if (gamemode !== "battle") {
+    com_run = true;
+    com_count = 0;
     messageElement.innerHTML = "";
     gamemode = "battle";
     rightLoopPerm = false;

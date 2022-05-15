@@ -1,4 +1,4 @@
-class field {
+class test_field {
     canvas = document.createElement('canvas');
     context = this.canvas.getContext('2d');
     picture = document.createElement('canvas');
@@ -111,7 +111,7 @@ class field {
     }
 }
 
-class mino {
+class test_mino {
     landing = false;
     fallTimer = 10;
     fallCounter = 0;
@@ -119,18 +119,22 @@ class mino {
     angle = 0;
     tspin = false;
     miniTspin = false;
-    inter = setInterval(() => {
-        if (this.landing === false) {
-            if (this.fallTimer <= 0) {
-                this.minodown();
-                this.fallTimer = 10;
-            } else {
-                this.fallTimer--;
-            }
-        } else {
-            clearInterval(this.inter);
-        }
-    }, 125);
+
+    inter = null;
+
+    // inter = setInterval(() => {
+    //   if (this.landing === false) {
+    //     if (this.fallTimer <= 0) {
+    //       this.minodown();
+    //       this.fallTimer = 10;
+    //     } else {
+    //       this.fallTimer--;
+    //     }
+    //   } else {
+    //     clearInterval(this.inter);
+    //   }
+    // }, 125);
+
     constructor(type, fi, landFunction) {
         this.type = type;
         this.canvas = fi.canvas;
@@ -726,13 +730,11 @@ class mino {
                     }
                 }
             }
-            this.render();
         }
     }
     control(key) {
         if (this.landing === false) {
             if (key === ' ') {
-                clearInterval(this.inter);
                 while (this.landing === false) {
                     this.minodown();
                 }
@@ -802,7 +804,6 @@ class mino {
                     this.miniTspin = false;
                 }
             }
-            this.render();
         }
     }
     minodown() {
@@ -837,10 +838,6 @@ class mino {
                             }
                         }
                     }
-                    this.field.render();
-                    if (this.landFunction != null) {
-                        this.landFunction();
-                    }
                 } else {
                     this.fallCounterCounter++;
                 }
@@ -849,95 +846,8 @@ class mino {
                 this.miniTspin = false;
             }
             this.fallCounter = 0;
-            this.render();
         } else {
             this.inter = null;
-        }
-    }
-    render() {
-        if (this.landing === false) {
-            let shadowY = this.y;
-            let shadowWhile = true;
-            while (shadowWhile) {
-                let permission = true;
-                for (let i = 0; i < this.data.length; i++) {
-                    const e = this.data[i];
-                    if (this.type === 'i' || this.type === 'o') {
-                        if (this.field.isblock((e[0] * 15 + this.x * 30 - 15) / 30, (e[1] * 15 + shadowY * 30 - 15) / 30)) {
-                            permission = false;
-                        }
-                    } else {
-                        if (this.field.isblock((e[0] + this.x), (e[1] + shadowY))) {
-                            permission = false;
-                        }
-                    }
-                }
-                if (permission === true) {
-                    shadowY++;
-                } else {
-                    shadowY--;
-                    shadowWhile = false;
-                }
-            }
-            this.field.drawfield();
-            for (let i = 0; i < this.data.length; i++) {
-                const e = this.data[i];
-                this.context.globalAlpha = 1.0;
-                if (this.type === 'i') {
-                    this.context.fillStyle = 'cyan';
-                    this.context.fillRect(e[0] * 15 + this.x * 30 - 15, e[1] * 15 + (this.y + 22 - this.field.height) * 30 - 15, 30, 30);
-                } else if (this.type === 'o') {
-                    this.context.fillStyle = 'yellow';
-                    this.context.fillRect(e[0] * 15 + this.x * 30 - 15, e[1] * 15 + (this.y + 22 - this.field.height) * 30 - 15, 30, 30);
-                } else if (this.type === 't') {
-                    this.context.fillStyle = 'purple';
-                    this.context.fillRect((e[0] + this.x) * 30, (e[1] + this.y + 22 - this.field.height) * 30, 30, 30);
-                } else if (this.type === 's') {
-                    this.context.fillStyle = 'greenyellow';
-                    this.context.fillRect((e[0] + this.x) * 30, (e[1] + this.y + 22 - this.field.height) * 30, 30, 30);
-                } else if (this.type === 'z') {
-                    this.context.fillStyle = 'red';
-                    this.context.fillRect((e[0] + this.x) * 30, (e[1] + this.y + 22 - this.field.height) * 30, 30, 30);
-                } else if (this.type === 'j') {
-                    this.context.fillStyle = 'blue';
-                    this.context.fillRect((e[0] + this.x) * 30, (e[1] + this.y + 22 - this.field.height) * 30, 30, 30);
-                } else if (this.type === 'l') {
-                    this.context.fillStyle = 'orange';
-                    this.context.fillRect((e[0] + this.x) * 30, (e[1] + this.y + 22 - this.field.height) * 30, 30, 30);
-                }
-                this.context.globalAlpha = 0.4;
-                if (this.type === 'i' || this.type === 'o') {
-                    this.context.drawImage(this.field.netstroke, e[0] * 15 + this.x * 30 - 15, e[1] * 15 + (this.y + 22 - this.field.height) * 30 - 15);
-                } else {
-                    this.context.drawImage(this.field.netstroke, (e[0] + this.x) * 30, (e[1] + this.y + 22 - this.field.height) * 30);
-                }
-            }
-            this.context.globalAlpha = 0.6;
-            for (let i = 0; i < this.data.length; i++) {
-                const e = this.data[i];
-                if (this.type === 'i') {
-                    this.context.fillStyle = 'cyan';
-                    this.context.fillRect(e[0] * 15 + this.x * 30 - 15, e[1] * 15 + (shadowY + 22 - this.field.height) * 30 - 15, 30, 30);
-                } else if (this.type === 'o') {
-                    this.context.fillStyle = 'yellow';
-                    this.context.fillRect(e[0] * 15 + this.x * 30 - 15, e[1] * 15 + (shadowY + 22 - this.field.height) * 30 - 15, 30, 30);
-                } else if (this.type === 't') {
-                    this.context.fillStyle = 'purple';
-                    this.context.fillRect((e[0] + this.x) * 30, (e[1] + shadowY + 22 - this.field.height) * 30, 30, 30);
-                } else if (this.type === 's') {
-                    this.context.fillStyle = 'greenyellow';
-                    this.context.fillRect((e[0] + this.x) * 30, (e[1] + shadowY + 22 - this.field.height) * 30, 30, 30);
-                } else if (this.type === 'z') {
-                    this.context.fillStyle = 'red';
-                    this.context.fillRect((e[0] + this.x) * 30, (e[1] + shadowY + 22 - this.field.height) * 30, 30, 30);
-                } else if (this.type === 'j') {
-                    this.context.fillStyle = 'blue';
-                    this.context.fillRect((e[0] + this.x) * 30, (e[1] + shadowY + 22 - this.field.height) * 30, 30, 30);
-                } else if (this.type === 'l') {
-                    this.context.fillStyle = 'orange';
-                    this.context.fillRect((e[0] + this.x) * 30, (e[1] + shadowY + 22 - this.field.height) * 30, 30, 30);
-                }
-            }
         }
     }
 }
