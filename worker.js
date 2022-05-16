@@ -1,100 +1,14 @@
-class field {
-    canvas = document.createElement('canvas');
-    context = this.canvas.getContext('2d');
-    picture = document.createElement('canvas');
-    pctx = this.picture.getContext('2d');
-    netstroke = document.createElement('canvas');
-    nsctx = this.netstroke.getContext('2d');
+class test_field {
     data = [];
-    constructor(width, height, element, gameover) {
+    constructor(width, height) {
         this.width = width;
         this.height = height;
-        this.netstroke.width = 30;
-        this.netstroke.height = 30;
-        this.picture.width = this.width * 30;
-        this.picture.height = this.height * 30;
-        if (22 < this.height) {
-            this.canvas.width = this.width * 30;
-            this.canvas.height = 660;
-        } else {
-            this.canvas.width = this.width * 30;
-            this.canvas.height = this.height * 30;
-        }
-        this.nsctx.lineWidth = '2';
-        this.nsctx.strokeStyle = 'gray';
-        this.nsctx.beginPath();
-        this.nsctx.moveTo(0, 0);
-        this.nsctx.lineTo(0, 30);
-        this.nsctx.lineTo(30, 30);
-        this.nsctx.lineTo(30, 0);
-        this.nsctx.lineTo(0, 0);
-        this.nsctx.stroke();
         for (let i1 = 0; i1 < height; i1++) {
             this.data.push([]);
             for (let i2 = 0; i2 < width; i2++) {
                 this.data.at(-1).push('');
             }
         }
-        if (element != null) {
-            this.setelement(element);
-        }
-        if (gameover != null) {
-            this.gameover = gameover;
-        }
-    }
-    render() {
-        for (let i1 = 0; i1 < this.data.length; i1++) {
-            for (let i2 = 0; i2 < this.data.length; i2++) {
-                const e2 = this.data[i1][i2];
-                this.pctx.globalAlpha = 1.0;
-                if (e2 === '') {
-                    this.pctx.fillStyle = 'black';
-                    this.pctx.fillRect(i2 * 30, i1 * 30, 30, 30);
-                } else if (e2 === 'i') {
-                    this.pctx.fillStyle = 'cyan';
-                    this.pctx.fillRect(i2 * 30, i1 * 30, 30, 30);
-                } else if (e2 === 'o') {
-                    this.pctx.fillStyle = 'yellow';
-                    this.pctx.fillRect(i2 * 30, i1 * 30, 30, 30);
-                } else if (e2 === 't') {
-                    this.pctx.fillStyle = 'purple';
-                    this.pctx.fillRect(i2 * 30, i1 * 30, 30, 30);
-                } else if (e2 === 's') {
-                    this.pctx.fillStyle = 'greenyellow';
-                    this.pctx.fillRect(i2 * 30, i1 * 30, 30, 30);
-                } else if (e2 === 'z') {
-                    this.pctx.fillStyle = 'red';
-                    this.pctx.fillRect(i2 * 30, i1 * 30, 30, 30);
-                } else if (e2 === 'j') {
-                    this.pctx.fillStyle = 'blue';
-                    this.pctx.fillRect(i2 * 30, i1 * 30, 30, 30);
-                } else if (e2 === 'l') {
-                    this.pctx.fillStyle = 'orange';
-                    this.pctx.fillRect(i2 * 30, i1 * 30, 30, 30);
-                } else if (e2 === 'd') {
-                    this.pctx.fillStyle = 'azure';
-                    this.pctx.fillRect(i2 * 30, i1 * 30, 30, 30);
-                }
-                this.pctx.globalAlpha = 0.4;
-                this.pctx.drawImage(this.netstroke, i2 * 30, i1 * 30);
-            }
-        }
-        return this;
-    }
-    netline() {
-        this.pctx.globalAlpha = 1.0;
-        this.pctx.fillStyle = 'black';
-        this.pctx.fillRect(0, 0, this.picture.width, this.picture.height);
-        for (let i1 = 0; i1 < this.data.length; i1++) {
-            for (let i2 = 0; i2 < this.data.length; i2++) {
-                this.pctx.globalAlpha = 0.4;
-                this.pctx.drawImage(this.netstroke, i2 * 30, i1 * 30);
-            }
-        }
-        return this;
-    }
-    drawfield() {
-        this.context.drawImage(this.picture, 0, this.picture.height - this.canvas.height, this.canvas.width, this.canvas.height, 0, 0, this.canvas.width, this.canvas.height);
     }
     isblock(x, y) {
         if (x < 0 || y < 0 || this.width <= x || this.height <= y) {
@@ -105,36 +19,21 @@ class field {
         }
         return false;
     }
-    setelement(element) {
-        this.element = element;
-        element.appendChild(this.canvas);
-    }
 }
 
-class mino {
+class test_mino {
     landing = false;
-    fallTimer = 0;
+    fallTimer = 10;
     fallCounter = 0;
     fallCounterCounter = 0;
     angle = 0;
     tspin = false;
     miniTspin = false;
-    constructor(type, fi, landFunction, speed) {
-        this.inter = setInterval(() => {
-            if (this.landing === false) {
-                if (this.fallTimer <= 0) {
-                    this.minodown();
-                    this.fallTimer = 0;
-                } else {
-                    this.fallTimer--;
-                }
-            } else {
-                clearInterval(this.inter);
-            }
-        }, speed);
+
+    inter = null;
+
+    constructor(type, fi, landFunction) {
         this.type = type;
-        this.canvas = fi.canvas;
-        this.context = fi.context;
         this.width = fi.width;
         this.height = fi.height;
         this.field = fi;
@@ -206,40 +105,6 @@ class mino {
             ];
         }
         this.y = this.field.height - 22 + this.y;
-        let permission = true;
-        for (let i = 0; i < this.data.length; i++) {
-            const e = this.data[i];
-            if (type === 'i' || type === 'o') {
-                if (this.field.isblock((e[0] * 15 + this.x * 30 - 15) / 30, (e[1] * 15 + this.y * 30 - 15) / 30)) {
-                    permission = false;
-                }
-            } else {
-                if (this.field.isblock(e[0] + this.x, e[1] + this.y)) {
-                    permission = false;
-                }
-            }
-        }
-        if (permission === false) {
-            this.y--;
-            permission = true;
-            for (let i = 0; i < this.data.length; i++) {
-                const e = this.data[i];
-                if (type === 'i' || type === 'o') {
-                    if (this.field.isblock((e[0] * 15 + this.x * 30 - 15) / 30, (e[1] * 15 + this.y * 30 - 15) / 30)) {
-                        permission = false;
-                    }
-                } else {
-                    if (this.field.isblock(e[0] + this.x, e[1] + this.y)) {
-                        permission = false;
-                    }
-                }
-            }
-            if (permission === false) {
-                if (this.field.gameover != null) {
-                    this.field.gameover();
-                }
-            }
-        }
     }
     rotate(RorL, count = 0) {
         //srs
@@ -726,13 +591,11 @@ class mino {
                     }
                 }
             }
-            this.render();
         }
     }
     control(key) {
         if (this.landing === false) {
             if (key === ' ') {
-                clearInterval(this.inter);
                 while (this.landing === false) {
                     this.minodown();
                 }
@@ -802,7 +665,6 @@ class mino {
                     this.miniTspin = false;
                 }
             }
-            this.render();
         }
     }
     minodown() {
@@ -837,10 +699,6 @@ class mino {
                             }
                         }
                     }
-                    this.field.render();
-                    if (this.landFunction != null) {
-                        this.landFunction();
-                    }
                 } else {
                     this.fallCounterCounter++;
                 }
@@ -849,95 +707,307 @@ class mino {
                 this.miniTspin = false;
             }
             this.fallCounter = 0;
-            this.render();
         } else {
             this.inter = null;
         }
     }
-    render() {
-        if (this.landing === false) {
-            let shadowY = this.y;
-            let shadowWhile = true;
-            while (shadowWhile) {
-                let permission = true;
-                for (let i = 0; i < this.data.length; i++) {
-                    const e = this.data[i];
-                    if (this.type === 'i' || this.type === 'o') {
-                        if (this.field.isblock((e[0] * 15 + this.x * 30 - 15) / 30, (e[1] * 15 + shadowY * 30 - 15) / 30)) {
-                            permission = false;
-                        }
-                    } else {
-                        if (this.field.isblock((e[0] + this.x), (e[1] + shadowY))) {
-                            permission = false;
+}
+
+function workercom(j) {
+    const com_field = new test_field(10, 50);
+    const com_field2 = new test_field(10, 50);
+
+    function com_aglmaxfunc(t) {
+        switch (t) {
+            case 'i':
+                return 2;
+            case 'o':
+                return 1;
+            case 's':
+            case 'z':
+                return 2;
+            default:
+                return 4;
+        }
+    }
+
+    const com_type = j.type1;
+    const com_type2 = j.type2;
+    const com_typehold = j.typehold;
+    let com_aglmax = com_aglmaxfunc(com_type);
+    let com_aglmaxhold = com_aglmaxfunc(com_typehold);
+    let com_score = [false, false, false, false];
+
+    for (let n0 = 0; n0 < com_aglmax; n0++) {
+        for (let n1 = -5; n1 < 6; n1++) {
+            com_field.data = JSON.parse(JSON.stringify(j.main));
+            let com_ctrcount = n1;
+            let com_aglcount = n0;
+            const com_mino = new test_mino(com_type, com_field);
+            while (com_aglcount !== 0) {
+                com_aglcount--;
+                com_mino.control('ArrowUp');
+            }
+            while (com_ctrcount !== 0) {
+                if (com_ctrcount < 0) {
+                    com_mino.control('ArrowLeft');
+                    com_ctrcount++;
+                } else if (0 < com_ctrcount) {
+                    com_mino.control('ArrowRight');
+                    com_ctrcount--;
+                }
+            }
+            com_mino.control(' ');
+
+            let com_clearline = 0;
+
+            for (let i1 = 0; i1 < com_field2.data.length; i1++) {
+                if (com_field2.data[i1].indexOf('') === -1) {
+                    com_field2.data.splice(i1, 1);
+                    const ins = [];
+                    for (let i2 = 0; i2 < com_field2.width; i2++) {
+                        ins.push('');
+                    }
+                    com_field2.data.unshift(ins);
+                    com_clearline++;
+                }
+            }
+            if (com_clearline === 1) {
+                com_clearline = 0.5;
+            }
+
+            for (let n02 = 0; n02 < 4; n02++) {
+                for (let n12 = -5; n12 < 6; n12++) {
+                    com_field2.data = JSON.parse(JSON.stringify(com_field.data));
+                    let com_ctrcount2 = n12;
+                    let com_aglcount2 = n02;
+                    const com_mino2 = new test_mino(com_type2, com_field2);
+                    while (com_aglcount2 !== 0) {
+                        com_aglcount2--;
+                        com_mino2.control('ArrowUp');
+                    }
+                    while (com_ctrcount2 !== 0) {
+                        if (com_ctrcount2 < 0) {
+                            com_mino2.control('ArrowLeft');
+                            com_ctrcount2++;
+                        } else if (0 < com_ctrcount2) {
+                            com_mino2.control('ArrowRight');
+                            com_ctrcount2--;
                         }
                     }
-                }
-                if (permission === true) {
-                    shadowY++;
-                } else {
-                    shadowY--;
-                    shadowWhile = false;
+                    com_mino2.control(' ');
+                    let com_beforeexist;
+                    let com_thisscore = 0;
+                    let com_nowtop = 0;
+                    let com_maintop = 0;
+                    let com_clearline2 = 0;
+                    const com_onexist = [false, false, false, false, false, false, false, false, false, false];
+                    for (let i1 = 0; i1 < com_field2.data.length; i1++) {
+                        if (com_field2.data[i1].indexOf('') === -1) {
+                            com_field2.data.splice(i1, 1);
+                            const ins = [];
+                            for (let i2 = 0; i2 < com_field2.width; i2++) {
+                                ins.push('');
+                            }
+                            com_field2.data.unshift(ins);
+                            com_clearline2++;
+                        }
+                    }
+                    if (com_clearline2 === 1) {
+                        com_clearline2 = 0.5;
+                    }
+                    com_clearline += com_clearline2;
+                    for (let n3 = 0; n3 < com_field2.data.length; n3++) {
+                        const element = com_field2.data[n3].join('');
+                        if (element !== '') {
+                            com_nowtop = n3;
+                            break;
+                        }
+                    }
+                    for (let n3 = 0; n3 < j.main.length; n3++) {
+                        const element = j.main[n3].join('');
+                        if (element !== '') {
+                            com_maintop = n3;
+                            break;
+                        }
+                    }
+                    com_thisscore += 10 * (com_maintop - com_nowtop - com_clearline * com_clearline);
+                    for (let n4 = com_nowtop; n4 < com_field2.data.length; n4++) {
+                        const row = com_field2.data[n4];
+                        for (let n5 = 0; n5 < row.length; n5++) {
+                            const column = row[n5];
+                            if (column !== '') {
+                                if (com_beforeexist == null) {
+                                    com_beforeexist = true;
+                                } else if (com_beforeexist === false) {
+                                    com_beforeexist = true;
+                                    com_thisscore++;
+                                }
+                                if (com_onexist[n5] === false) {
+                                    com_onexist[n5] = true;
+                                    com_thisscore++;
+                                }
+                            } else {
+                                if (com_beforeexist == null) {
+                                    com_beforeexist = false;
+                                } else if (com_beforeexist === true) {
+                                    com_beforeexist = false;
+                                    com_thisscore++;
+                                }
+                                if (com_onexist[n5] === true) {
+                                    com_onexist[n5] = false;
+                                    com_thisscore++;
+                                }
+                            }
+                        }
+                    }
+                    if (com_score[0] === false || com_thisscore <= com_score[0]) {
+                        com_score[0] = com_thisscore;
+                        com_score[1] = n1;
+                        com_score[2] = n0;
+                        com_score[3] = 0;
+                    }
                 }
             }
-            this.field.drawfield();
-            for (let i = 0; i < this.data.length; i++) {
-                const e = this.data[i];
-                this.context.globalAlpha = 1.0;
-                if (this.type === 'i') {
-                    this.context.fillStyle = 'cyan';
-                    this.context.fillRect(e[0] * 15 + this.x * 30 - 15, e[1] * 15 + (this.y + 22 - this.field.height) * 30 - 15, 30, 30);
-                } else if (this.type === 'o') {
-                    this.context.fillStyle = 'yellow';
-                    this.context.fillRect(e[0] * 15 + this.x * 30 - 15, e[1] * 15 + (this.y + 22 - this.field.height) * 30 - 15, 30, 30);
-                } else if (this.type === 't') {
-                    this.context.fillStyle = 'purple';
-                    this.context.fillRect((e[0] + this.x) * 30, (e[1] + this.y + 22 - this.field.height) * 30, 30, 30);
-                } else if (this.type === 's') {
-                    this.context.fillStyle = 'greenyellow';
-                    this.context.fillRect((e[0] + this.x) * 30, (e[1] + this.y + 22 - this.field.height) * 30, 30, 30);
-                } else if (this.type === 'z') {
-                    this.context.fillStyle = 'red';
-                    this.context.fillRect((e[0] + this.x) * 30, (e[1] + this.y + 22 - this.field.height) * 30, 30, 30);
-                } else if (this.type === 'j') {
-                    this.context.fillStyle = 'blue';
-                    this.context.fillRect((e[0] + this.x) * 30, (e[1] + this.y + 22 - this.field.height) * 30, 30, 30);
-                } else if (this.type === 'l') {
-                    this.context.fillStyle = 'orange';
-                    this.context.fillRect((e[0] + this.x) * 30, (e[1] + this.y + 22 - this.field.height) * 30, 30, 30);
-                }
-                this.context.globalAlpha = 0.4;
-                if (this.type === 'i' || this.type === 'o') {
-                    this.context.drawImage(this.field.netstroke, e[0] * 15 + this.x * 30 - 15, e[1] * 15 + (this.y + 22 - this.field.height) * 30 - 15);
-                } else {
-                    this.context.drawImage(this.field.netstroke, (e[0] + this.x) * 30, (e[1] + this.y + 22 - this.field.height) * 30);
-                }
-            }
-            this.context.globalAlpha = 0.6;
-            for (let i = 0; i < this.data.length; i++) {
-                const e = this.data[i];
-                if (this.type === 'i') {
-                    this.context.fillStyle = 'cyan';
-                    this.context.fillRect(e[0] * 15 + this.x * 30 - 15, e[1] * 15 + (shadowY + 22 - this.field.height) * 30 - 15, 30, 30);
-                } else if (this.type === 'o') {
-                    this.context.fillStyle = 'yellow';
-                    this.context.fillRect(e[0] * 15 + this.x * 30 - 15, e[1] * 15 + (shadowY + 22 - this.field.height) * 30 - 15, 30, 30);
-                } else if (this.type === 't') {
-                    this.context.fillStyle = 'purple';
-                    this.context.fillRect((e[0] + this.x) * 30, (e[1] + shadowY + 22 - this.field.height) * 30, 30, 30);
-                } else if (this.type === 's') {
-                    this.context.fillStyle = 'greenyellow';
-                    this.context.fillRect((e[0] + this.x) * 30, (e[1] + shadowY + 22 - this.field.height) * 30, 30, 30);
-                } else if (this.type === 'z') {
-                    this.context.fillStyle = 'red';
-                    this.context.fillRect((e[0] + this.x) * 30, (e[1] + shadowY + 22 - this.field.height) * 30, 30, 30);
-                } else if (this.type === 'j') {
-                    this.context.fillStyle = 'blue';
-                    this.context.fillRect((e[0] + this.x) * 30, (e[1] + shadowY + 22 - this.field.height) * 30, 30, 30);
-                } else if (this.type === 'l') {
-                    this.context.fillStyle = 'orange';
-                    this.context.fillRect((e[0] + this.x) * 30, (e[1] + shadowY + 22 - this.field.height) * 30, 30, 30);
+        }
+        if (com_typehold !== 'none' && j.com_hold && j.com_permhold) {
+            for (let n0 = 0; n0 < com_aglmaxhold; n0++) {
+                for (let n1 = -5; n1 < 6; n1++) {
+                    com_field.data = JSON.parse(JSON.stringify(j.main));
+                    let com_ctrcount = n1;
+                    let com_aglcount = n0;
+                    const com_mino = new test_mino(com_typehold, com_field);
+                    while (com_aglcount !== 0) {
+                        com_aglcount--;
+                        com_mino.control('ArrowUp');
+                    }
+                    while (com_ctrcount !== 0) {
+                        if (com_ctrcount < 0) {
+                            com_mino.control('ArrowLeft');
+                            com_ctrcount++;
+                        } else if (0 < com_ctrcount) {
+                            com_mino.control('ArrowRight');
+                            com_ctrcount--;
+                        }
+                    }
+                    com_mino.control(' ');
+
+                    let com_clearline = 0;
+
+                    for (let i1 = 0; i1 < com_field2.data.length; i1++) {
+                        if (com_field2.data[i1].indexOf('') === -1) {
+                            com_field2.data.splice(i1, 1);
+                            const ins = [];
+                            for (let i2 = 0; i2 < com_field2.width; i2++) {
+                                ins.push('');
+                            }
+                            com_field2.data.unshift(ins);
+                            com_clearline++;
+                        }
+                    }
+                    if (com_clearline === 1) {
+                        com_clearline = 0.5;
+                    }
+
+                    for (let n02 = 0; n02 < 4; n02++) {
+                        for (let n12 = -5; n12 < 6; n12++) {
+                            com_field2.data = JSON.parse(JSON.stringify(com_field.data));
+                            let com_ctrcount2 = n12;
+                            let com_aglcount2 = n02;
+                            const com_mino2 = new test_mino(com_type, com_field2);
+                            while (com_aglcount2 !== 0) {
+                                com_aglcount2--;
+                                com_mino2.control('ArrowUp');
+                            }
+                            while (com_ctrcount2 !== 0) {
+                                if (com_ctrcount2 < 0) {
+                                    com_mino2.control('ArrowLeft');
+                                    com_ctrcount2++;
+                                } else if (0 < com_ctrcount2) {
+                                    com_mino2.control('ArrowRight');
+                                    com_ctrcount2--;
+                                }
+                            }
+                            com_mino2.control(' ');
+                            let com_beforeexist;
+                            let com_thisscore = 0;
+                            let com_nowtop = 0;
+                            let com_maintop = 0;
+                            let com_clearline2 = 0;
+                            const com_onexist = [false, false, false, false, false, false, false, false, false, false];
+                            for (let i1 = 0; i1 < com_field2.data.length; i1++) {
+                                if (com_field2.data[i1].indexOf('') === -1) {
+                                    com_field2.data.splice(i1, 1);
+                                    const ins = [];
+                                    for (let i2 = 0; i2 < com_field2.width; i2++) {
+                                        ins.push('');
+                                    }
+                                    com_field2.data.unshift(ins);
+                                    com_clearline2++;
+                                }
+                            }
+                            if (com_clearline2 === 1) {
+                                com_clearline2 = 0.5;
+                            }
+                            com_clearline += com_clearline2;
+                            for (let n3 = 0; n3 < com_field2.data.length; n3++) {
+                                const element = com_field2.data[n3].join('');
+                                if (element !== '') {
+                                    com_nowtop = n3;
+                                    break;
+                                }
+                            }
+                            for (let n3 = 0; n3 < j.main.length; n3++) {
+                                const element = j.main[n3].join('');
+                                if (element !== '') {
+                                    com_maintop = n3;
+                                    break;
+                                }
+                            }
+                            com_thisscore += 10 * (com_maintop - com_nowtop - com_clearline * com_clearline);
+                            for (let n4 = com_nowtop; n4 < com_field2.data.length; n4++) {
+                                const row = com_field2.data[n4];
+                                for (let n5 = 0; n5 < row.length; n5++) {
+                                    const column = row[n5];
+                                    if (column !== '') {
+                                        if (com_beforeexist == null) {
+                                            com_beforeexist = true;
+                                        } else if (com_beforeexist === false) {
+                                            com_beforeexist = true;
+                                            com_thisscore++;
+                                        }
+                                        if (com_onexist[n5] === false) {
+                                            com_onexist[n5] = true;
+                                            com_thisscore++;
+                                        }
+                                    } else {
+                                        if (com_beforeexist == null) {
+                                            com_beforeexist = false;
+                                        } else if (com_beforeexist === true) {
+                                            com_beforeexist = false;
+                                            com_thisscore++;
+                                        }
+                                        if (com_onexist[n5] === true) {
+                                            com_onexist[n5] = false;
+                                            com_thisscore++;
+                                        }
+                                    }
+                                }
+                            }
+                            if (com_score[0] === false || com_thisscore <= com_score[0]) {
+                                com_score[0] = com_thisscore;
+                                com_score[1] = n1;
+                                com_score[2] = n0;
+                                com_score[3] = 1;
+                            }
+                        }
+                    }
                 }
             }
         }
     }
+    return JSON.stringify(com_score);
 }
+self.addEventListener('message', function (e) {
+    self.postMessage(workercom(JSON.parse(e.data)));
+}, false);

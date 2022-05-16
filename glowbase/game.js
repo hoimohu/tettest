@@ -1,35 +1,68 @@
-const fieldElement = document.getElementById('field');
-const btn = document.getElementById('button');
-const tech = document.getElementById('technique');
-const next = document.getElementById('next');
-const scoreElement = document.getElementById('score');
-const partner = document.getElementById('partner');
-const damageElement = document.getElementById('damage');
-const chatElement = document.getElementById('chat');
-const chatinp = document.getElementById('chatinp');
-const messageElement = document.getElementById('message');
-const holdElement = document.getElementById('holdmino');
-const backimgElement = document.getElementById('backimg');
-const gameElement = document.getElementById('game');
-const btnareaElement = document.getElementById('buttonarea');
-const lineElement = document.getElementById('line');
-const recordElement = document.getElementById('record');
+//glowing
+const stage = new stageObj(() => innerWidth, () => innerHeight);
 
-let game = true;
+const iconsrc = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAApCAYAAABz26rUAAAAAXNSR0IArs4c6QAAAidJREFUWEftWMltw0AMlOtKFXbyzDcNuAA/XIAbyDdPx6nCdSVggDEohqdWRwTIHwPaXe4Mh8Ndadet/LdbOf5uI7C0gpMqcHg6fN/ut0n3mDT4agjMAdQq1U0ByoylQKsymfWjKICN6D/TlaSxM0AnLSEO/PPrGnJ43r90nESLgs0K0OYSNAG0fpjLSVQIyLlNBDh4Dvr8elbxnz5Ov88liUUIaOAt4JwNJwEVFiVAIDLAJQmuAo2RJ7wmYJ3o6RKSWYICmdKR9SRVwLjXACy10gQkCE6AFACoqP55HA2w1gA0tRAnTcBTAKBBwupAl7fLY+j4fuyZGQNaAiiu1r1ozYNAdJhkCXCQ3oFABDzQWtkRCXmGlBSQQRGQK1AhUDE/VDAJRNcBy2C8C9EmYxKQJekqgBYWdQKtLMZUgIPWPOMqIN0uwVoGo3lVEuQBzfyWgjB9SAAlQZnI1ihvoZky4gZGkqLSG0SAZza6YlrSYx0HDbD0LALO14ce0LpKVgXayDsHNKCzEIhU0EBXslqZW1YgyiqNSwCVrNL67PyyB+TtsZKp7NwsAe4feSvtXSWkB0Ai01m42cYiAODex7F/R8DLttYJVQLSuBUFsmWhtVd6Vv0U+YcABcGdvHq6RmWkHWBVwFKF3m3Ues8dooAmdytYt4QwaH1p8IypZXZIOUSnfYoATcp+YUPAKTKbJZN+ockGnHveRmDujLtdaGkwQ/ZffQn9AMT2MUjamBt7AAAAAElFTkSuQmCC';
+
+let fieldi;
+let fieldc;
+let pfieldi;
+let pfieldc;
+
+const holdc = new charObj(10, 5, false, 8);
+const damagec = new charObj(10, 15, false, 8);
+const scorec = new charObj(50, 90, false, 4);
+const nextc = [
+    new charObj(90, 5, false, 10),
+    new charObj(90, 15, false, 10),
+    new charObj(90, 25, false, 10),
+    new charObj(90, 35, false, 10),
+    new charObj(90, 45, false, 10)
+];
+const scorei = new textObj('score: 0', 'sans-serif', '#fff', '#000', 4);
+scorec.on(scorei);
+
+const bcgi = new fillObj('skyblue', 100, 100);
+const bcgc = new charObj(50, 50, 100, 100);
+bcgc.on(bcgi);
+const iconi = new imgObj(iconsrc, 0, 0);
+const iconc = new charObj(50, 25, 50);
+iconc.on(iconi);
+const fulli = new textObj('全画面表示', 'sans-serif', '#fff', '#000', 6);
+const fullc = new charObj(50, 'calc(100%-100@)', false, 3);
+fullc.addEvent('click', full);
+fulli.co = true;
+fullc.on(fulli);
+
+function msgDisplay(msg, color, floor) {
+    const f = (floor != null) ? floor : 0;
+    let alpha = 100;
+    const txti = new textObj(msg, 'sans-serif', '#fff', color, 4);
+    const txtc = new charObj(50, 50 + 15 * f, false, 15);
+    txtc.on(txti);
+    stage.put(txtc);
+    const inter = setInterval(() => {
+        if (0 < alpha) {
+            alpha--;
+            txtc.alpha = alpha / 100;
+        } else {
+            alpha = 0;
+            clearInterval(inter);
+        }
+    }, 10);
+}
+
+//game
+let game = false;
 let gamemode;
 let fullscreen = false;
 let sock;
-let starttime;
 
 let runstopbool = true;
 
-let nextNum = 5;
 const mino7 = ['i', 't', 'o', 's', 'z', 'l', 'j'];
-const nextElement = [];
 const nextMino = [];
 
 let ren = -1;
-let linebreak = 0;
 let btb = false;
 let score = 0;
 let main;
@@ -48,21 +81,11 @@ let battleFunction;
 let endBattleFunction;
 let attackBattleFunction;
 
-let sendChatFunction;
 
-function msgDisplay(msg, color) {
-    const txte = document.createElement('div');
-    txte.innerText = msg;
-    txte.style = 'color:' + color + ';';
-    txte.classList.add('trop2');
-    tech.appendChild(txte);
-    setTimeout(() => {
-        txte.classList.add('op0');
-        setTimeout(() => {
-            txte.remove();
-        }, 2000);
-    }, 100);
-}
+const chatElement = document.getElementById('chat');
+const chatinp = document.getElementById('chatinp');
+const messageElement = document.getElementById('message');
+let sendChatFunction;
 
 function send(m) {
     if (sock != null) {
@@ -86,16 +109,6 @@ function techsend(d) {
     if (sendChatFunction != null) {
         sendChatFunction(d, true);
     }
-}
-
-function time(t) {
-    return Math.floor(t / 3600000) + ':' + Math.floor(t / 60000) % 60 + ':' + Math.floor(t / 1000) % 60 + ':' + t % 1000;
-}
-
-for (let i = 0; i < nextNum; i++) {
-    const d = document.createElement('div');
-    next.appendChild(d);
-    nextElement.push(d);
 }
 
 const previewMino = {
@@ -274,7 +287,6 @@ function downLoop() {
 }
 
 function RQAor60FPS() {
-    RQAor90btnE.blur();
     if (RQA) {
         RQA = false;
         rightLoop60 = setInterval(() => {
@@ -329,27 +341,24 @@ function RQAor60FPS() {
                 }
             }
         }, 1000 / 90);
-        RQAor90btnE.innerText = '90fps固定中';
+        RQAor60btni.setText('90');
     } else {
         RQA = true;
         rightLoop();
         leftLoop();
         downLoop();
-        RQAor90btnE.innerText = '自動調整中';
+        RQAor60btni.setText('自動');
     }
 }
 
-const RQAor90btnE = document.createElement('button');
-RQAor90btnE.setAttribute('type', 'button');
-RQAor90btnE.innerText = '90fps固定中';
-RQAor90btnE.addEventListener('click', RQAor60FPS);
-btnareaElement.appendChild(RQAor90btnE);
+const RQAor60btnc = new charObj(96, 96, 2, 2);
+const RQAor60btni = new textObj('90', 'sans-serif', 'orange', '#000', 4);
+RQAor60btni.co = true;
+RQAor60btnc.on(RQAor60btni);
+RQAor60btnc.addEvent('click', RQAor60FPS);
 
 document.addEventListener('keydown', e => {
     if (game && nowMino != null) {
-        if (!(e.ctrlKey === true || document.activeElement === chatinp)) {
-            e.preventDefault();
-        }
         if (e.repeat === false) {
             if (e.key === ' ') {
                 score += 5;
@@ -375,10 +384,34 @@ document.addEventListener('keydown', e => {
                 }
             } else if (e.key === 'a') {
                 if (HNalpha === false) {
-                    btnareaElement.className = 'op2';
+                    for (let n = -3; n < 5; n++) {
+                        if (n === -3) {
+                            if (pfieldc != null) {
+                                pfieldc.alpha = 0.2;
+                            }
+                        } else if (n === -2) {
+                            damagec.alpha = 0.6;
+                        } else if (n === -1) {
+                            holdc.alpha = 0.6;
+                        } else {
+                            nextc[n].alpha = 0.6;
+                        }
+                    }
                     HNalpha = true;
                 } else {
-                    btnareaElement.className = '';
+                    for (let n = -3; n < 5; n++) {
+                        if (n === -3) {
+                            if (pfieldc != null) {
+                                pfieldc.alpha = 1;
+                            }
+                        } else if (n === -2) {
+                            damagec.alpha = 1;
+                        } else if (n === -1) {
+                            holdc.alpha = 1;
+                        } else {
+                            nextc[n].alpha = 1;
+                        }
+                    }
                     HNalpha = false;
                 }
             } else if (e.key === 'r' && gamemode === 'normal') {
@@ -393,7 +426,9 @@ document.addEventListener('keydown', e => {
         startMenu();
     } else if (game === false && nowMino != null && e.key === 'r' && gamemode === 'fin') {
         if (sock != null) {
-            conti();
+            send({
+                type: 'continue'
+            });
         }
     }
 });
@@ -428,30 +463,12 @@ function minobag(hold = false) {
                 }
                 main.data.unshift(ins);
                 clearline++;
-                linebreak++;
-                if (linebreak === 40) {
-                    const re = document.createElement('div');
-                    re.className = 'red';
-                    re.innerText = '\n' + time(Date.now() - starttime);
-                    recordElement.appendChild(re);
-                } else if (linebreak === 99) {
-                    const re = document.createElement('div');
-                    re.className = 'blue';
-                    re.innerText = '\n' + time(Date.now() - starttime);
-                    recordElement.appendChild(re);
-                } else if (linebreak === 999) {
-                    re.className = 'orange';
-                    const re = document.createElement('div');
-                    re.innerText = '\n' + time(Date.now() - starttime);
-                    recordElement.appendChild(re);
-                }
             }
             if (main.data[i1].join('') !== '') {
                 perfect = false;
             }
         }
         if (clearline !== 0) {
-            lineElement.innerText = linebreak;
             main.render().drawfield();
         }
 
@@ -551,35 +568,29 @@ function minobag(hold = false) {
         function minobagNext() {
             if (game) {
                 runstopbool = true;
-                if (nextMino.length <= nextNum) {
-                    while (nextMino.length <= nextNum) {
+                if (nextMino.length <= 5) {
+                    while (nextMino.length <= 5) {
                         const mino7a = JSON.parse(JSON.stringify(mino7));
                         while (mino7a.length !== 0) {
                             nextMino.push(mino7a.splice(Math.floor(Math.random() * mino7a.length), 1)[0]);
                         }
                     }
                 }
-                let minospeed = 1250;
-                for (let n = 0; n < linebreak / 40; n++) {
-                    minospeed -= 50;
-                }
-                nowMino = new mino(nextMino.shift(), main, minobag, minospeed);
+                nowMino = new mino(nextMino.shift(), main, minobag);
                 for (let i = 0; i < 5; i++) {
                     const canvas = previewMino[nextMino[i]].canvas.cloneNode();
                     const context = canvas.getContext('2d');
                     context.drawImage(previewMino[nextMino[i]].canvas, 0, 0);
-                    nextElement[i].innerHTML = '';
-                    nextElement[i].appendChild(canvas);
+                    nextc[i].items = [new imgObj(canvas, 0, 0, canvas.width, canvas.height)];
                 }
                 if (holdMino != null) {
                     const canvas = previewMino[holdMino].canvas.cloneNode();
                     const context = canvas.getContext('2d');
                     context.drawImage(previewMino[holdMino].canvas, 0, 0);
-                    holdElement.innerHTML = '';
-                    holdElement.appendChild(canvas);
+                    holdc.items = [new imgObj(canvas, 0, 0, canvas.width, canvas.height)];
                 }
                 score += (damage * 100 + plusscore * 100);
-                scoreElement.innerText = score;
+                scorei.setText('score: ' + score);
                 nowMino.render();
                 if (gamemode === 'battle' && hold === false) {
                     attackBattleFunction(damage);
@@ -608,41 +619,20 @@ function minobag(hold = false) {
 
 
 function start() {
-    starttime = Date.now();
     rightLoopPerm = false;
     rightLoopCount = 0;
     leftLoopPerm = false;
     leftLoopCount = 0;
     downLoopPerm = false;
     downLoopCount = 0;
-
-    linebreak = 0;
-
-    lineElement.innerText = '0';
-    recordElement.innerHTML = '';
-    backimgElement.className = '';
-    btn.innerHTML = '<button onclick="full()">フルスクリーン|フルスクリーン解除</button><button onclick="start()">最初から</button><button onclick="startMenu()" type="button">メニューに戻る</button>';
-    gameElement.className = 'flexcenter';
-
     gamemode = 'normal';
-
     if (nowMino != null) {
         main.canvas.remove();
         nowMino.landing = true;
+        while (nextMino.length !== 0) {
+            nextMino.shift();
+        }
     }
-
-    while (nextElement.length !== 0) {
-        nextElement.shift().remove();
-    }
-    while (nextMino.length !== 0) {
-        nextMino.shift();
-    }
-    for (let i = -1; i < nextNum; i++) {
-        const d = document.createElement('div');
-        next.appendChild(d);
-        nextElement.push(d);
-    }
-
     game = true;
     runstopbool = true;
     btb = false;
@@ -650,51 +640,36 @@ function start() {
     ren = -1;
     holdMino = 'none';
     permHold = true;
-    main = new field(10, 50, fieldElement, () => {
+    let pushedDiv = document.createElement('div');
+    main = new field(10, 50, pushedDiv, () => {
         game = false;
         gameset = true;
+        pushedDiv.remove();
+        pushedDiv = null;
     });
     main.netline().drawfield();
+    for (let n = 0; n < nextc.length; n++) {
+        nextc[n].x = 90;
+    }
+    fieldi = new imgObj(main.canvas, 0, 0, main.canvas.width, main.canvas.height);
+    fieldc = new charObj(50, 50, false, 80);
+    fieldc.on(fieldi);
+    iconi.smooth = true;
+    stage.stage = [bcgc, iconc, fullc, RQAor60btnc, fieldc, holdc, scorec, nextc[0], nextc[1], nextc[2], nextc[3], nextc[4]];
     minobag();
 }
 
 function battle() {
     if (gamemode !== 'battle') {
-        starttime = Date.now();
+        messageElement.innerHTML = '';
         gamemode = 'battle';
-
         rightLoopPerm = false;
         rightLoopCount = 0;
         leftLoopPerm = false;
         leftLoopCount = 0;
         downLoopPerm = false;
         downLoopCount = 0;
-
-        linebreak = 0;
-
-        messageElement.innerHTML = '';
-        tech.innerHTML = '';
-        next.innerHTML = '';
-        scoreElement.innerHTML = '';
-        damageElement.innerHTML = '';
-        holdElement.innerHTML = '';
-        fieldElement.innerHTML = '';
-        partner.innerHTML = '';
-        lineElement.innerText = '0';
-        recordElement.innerHTML = '';
-        btn.innerHTML = '<button type="button" onclick="full()">フルスクリーン|フルスクリーン解除</button>';
-        gameElement.className = 'flexbetween';
         chatinp.value = '';
-
-        while (nextElement.length !== 0) {
-            nextElement.shift();
-        }
-        for (let i = -1; i < nextNum; i++) {
-            const d = document.createElement('div');
-            next.appendChild(d);
-            nextElement.push(d);
-        }
-
         if (nowMino != null) {
             main.canvas.remove();
             nowMino.landing = true;
@@ -710,24 +685,47 @@ function battle() {
         holdMino = 'none';
         permHold = true;
         mydamage = [];
-        main = new field(10, 50, fieldElement, () => {
+        let pushedDiv = document.createElement('div');
+        main = new field(10, 50, pushedDiv, () => {
             game = false;
             gameset = true;
+            pushedDiv.remove();
+            pushedDiv = null;
         });
+        for (let n = 0; n < nextc.length; n++) {
+            nextc[n].x = 'calc(100@/3*10+15*(100%/(100@/3*10))*(100%/(100@/3*10)))';
+        }
         if (holdMino != null) {
             const canvas = previewMino[holdMino].canvas.cloneNode();
             const context = canvas.getContext('2d');
             context.drawImage(previewMino[holdMino].canvas, 0, 0);
-            holdElement.innerHTML = '';
-            holdElement.appendChild(canvas);
+            holdc.items = [new imgObj(canvas, 0, 0, canvas.width, canvas.height)];
         }
         main.netline().drawfield();
-        pMain = new field(10, 50, partner);
+        pMain = new field(10, 50, pushedDiv);
         pMain.netline().drawfield();
-        dMain = new field(1, 1, damageElement);
+        dMain = new field(1, 1, pushedDiv);
         dMain.netline().drawfield();
+        damagec.items = [new imgObj(dMain.canvas, 0, 0, dMain.canvas.width, dMain.canvas.height)];
 
-        backimgElement.className = '';
+        fieldi = new imgObj(main.canvas, 0, 0, main.canvas.width, main.canvas.height);
+        fieldc = new charObj('calc(50@+10*100%/100@*100%/100@)', 50, false, 80);
+        fieldc.on(fieldi);
+
+        pfieldi = new imgObj(pMain.canvas, 0, 0, pMain.canvas.width, pMain.canvas.height);
+        pfieldc = new charObj('calc(100%-(50@+10*100%/100@*100%/100@))', 50, false, 80);
+        pfieldc.on(pfieldi);
+
+        iconi.smooth = true;
+
+        for (let i = 0; i < 5; i++) {
+            const canvas = previewMino.none.canvas.cloneNode();
+            const context = canvas.getContext('2d');
+            context.drawImage(previewMino.none.canvas, 0, 0);
+            nextc[i].items = [new imgObj(canvas, 0, 0, canvas.width, canvas.height)];
+        }
+
+        stage.stage = [bcgc, iconc, fullc, RQAor60btnc, pfieldc, fieldc, damagec, holdc, nextc[0], nextc[1], nextc[2], nextc[3], nextc[4]];
 
         if (sock == null) {
 
@@ -747,7 +745,7 @@ function battle() {
                     });
                 };
                 endBattleFunction = () => {
-                    if (gameset && gamemode === 'battle') {
+                    if (gameset) {
                         send({
                             type: 'battle',
                             battle: 'lose',
@@ -757,28 +755,13 @@ function battle() {
                 };
                 attackBattleFunction = (d) => {
                     if (d <= mydamage.length) {
-                        for (let i = 0; !(mydamage.length === 0 || 11 < i); i++) {
-                            main.data.shift();
-                            main.data.push(mydamage.shift());
-                        }
-                        if (1 === mydamage.length) {
-                            dMain.data[0][0] = 'i';
-                        } else if (2 === mydamage.length) {
-                            dMain.data[0][0] = 'j';
-                        } else if (3 === mydamage.length) {
-                            dMain.data[0][0] = 'l';
-                        } else if (4 === mydamage.length) {
-                            dMain.data[0][0] = 'o';
-                        } else if (5 === mydamage.length) {
-                            dMain.data[0][0] = 's';
-                        } else if (6 === mydamage.length) {
-                            dMain.data[0][0] = 't';
-                        } else if (7 < mydamage.length) {
-                            dMain.data[0][0] = 'z';
-                        } else {
-                            dMain.data[0][0] = '';
-                        }
+                        dMain.data[0][0] = '';
                         dMain.render().drawfield();
+                        for (let i = 0; i < mydamage.length; i++) {
+                            main.data.shift();
+                            main.data.push(mydamage[i]);
+                        }
+                        mydamage = [];
                         main.render().drawfield();
                     } else {
                         send({
@@ -811,20 +794,17 @@ function battle() {
                     });
                 } else if (ms.type === 'count') {
                     if (ms.count === 3) {
-                        if (nextMino.length <= nextNum) {
-                            while (nextMino.length <= nextNum) {
-                                const mino7a = JSON.parse(JSON.stringify(mino7));
-                                while (mino7a.length !== 0) {
-                                    nextMino.push(mino7a.splice(Math.floor(Math.random() * mino7a.length), 1)[0]);
-                                }
+                        while (nextMino.length <= 5) {
+                            const mino7a = JSON.parse(JSON.stringify(mino7));
+                            while (mino7a.length !== 0) {
+                                nextMino.push(mino7a.splice(Math.floor(Math.random() * mino7a.length), 1)[0]);
                             }
                         }
                         for (let i = 0; i < 5; i++) {
                             const canvas = previewMino[nextMino[i]].canvas.cloneNode();
                             const context = canvas.getContext('2d');
                             context.drawImage(previewMino[nextMino[i]].canvas, 0, 0);
-                            nextElement[i].innerHTML = '';
-                            nextElement[i].appendChild(canvas);
+                            nextc[i].items = [new imgObj(canvas, 0, 0, canvas.width, canvas.height)];
                         }
                     }
                     msgDisplay('' + ms.count, 'blue');
@@ -888,9 +868,15 @@ function battle() {
                     msgDisplay('You lose...', 'blue');
                     setTimeout(() => {
                         msgDisplay('You lose...', 'blue');
-                        btn.innerHTML = '<button type="button" onclick="conti()">つづけて誰かと対戦する</button><button type="button" onclick="full()">フルスクリーン|フルスクリーン解除</button><button onclick="startMenu()" type="button">メニューに戻る</button>';
+                        const contii1 = new textObj('つづけて誰かと対戦する', 'sans-serif', '#fff', '#000', 4);
+                        const contii2 = new frameObj(600, 50, 2, '#00f', '#fff');
+                        const contic = new charObj(50, 60, false, 5);
+                        contic.addEvent('click', () => send({
+                            type: 'continue'
+                        }));
+                        contic.on(contii2, contii1);
+                        stage.put(contic);
                     }, 1000);
-                    continueperm = true;
                 } else if (ms.type === 'win') {
                     gamemode = 'fin';
                     game = false;
@@ -907,11 +893,15 @@ function battle() {
                     });
                     msgDisplay('YOU WIN!!', 'greenyellow');
                     setTimeout(() => {
-                        setTimeout(() => {
-                            msgDisplay('You WIN!!', 'greenyellow');
-                            btn.innerHTML = '<button type="button" onclick="conti()">つづけて誰かと対戦する</button><button type="button" onclick="full()">フルスクリーン|フルスクリーン解除</button><button onclick="startMenu()" type="button">メニューに戻る</button>';
-                        }, 1000);
-                        continueperm = true;
+                        msgDisplay('YOU WIN!!', 'greenyellow');
+                        const contii1 = new textObj('つづけて誰かと対戦する', 'sans-serif', '#fff', '#000', 4);
+                        const contii2 = new frameObj(600, 50, 2, '#00f', '#fff');
+                        const contic = new charObj(50, 60, false, 5);
+                        contic.addEvent('click', () => send({
+                            type: 'continue'
+                        }));
+                        contic.on(contii2, contii1);
+                        stage.put(contic);
                     }, 1000);
                 } else if (ms.type === 'chat') {
                     if (ms.owner === 'わざ・お相手') {
@@ -958,6 +948,16 @@ function battle() {
     }
 }
 
+function full() {
+    if (fullscreen === false) {
+        document.body.requestFullscreen();
+        fullscreen = true;
+    } else {
+        document.exitFullscreen();
+        fullscreen = false;
+    }
+}
+
 function startMenu() {
     if (gamemode !== 'startmenu') {
         rightLoopPerm = false;
@@ -966,9 +966,6 @@ function startMenu() {
         leftLoopCount = 0;
         downLoopPerm = false;
         downLoopCount = 0;
-
-        linebreak = 0;
-
         if (nowMino != null) {
             main.canvas.remove();
             nowMino.landing = true;
@@ -980,45 +977,25 @@ function startMenu() {
         nowMino = null;
         main = null;
     }
-
-    btn.innerHTML = '<button onclick="full()" type="button">フルスクリーン|フルスクリーン解除</button><button onclick="start()" type="button">スタート</button><button onclick="battle()" type="button">2人で対戦</button>';
-    gameElement.className = 'flexcenter';
-    tech.innerHTML = '';
-    next.innerHTML = '';
-    scoreElement.innerHTML = '';
-    partner.innerHTML = '';
-    damageElement.innerHTML = '';
-    messageElement.innerHTML = '';
-    holdElement.innerHTML = '';
-    lineElement.innerText = '';
-    recordElement.innerHTML = '';
-
     messageElement.innerHTML = '';
     chatElement.className = 'none';
+    stage.stage = [];
+    iconi.smooth = false;
     gamemode = 'startmenu';
-    backimgElement.className = 'pixel';
+    const soloi1 = new textObj('ひとりでプレイ', 'sans-serif', '#fff', '#000', 4);
+    const soloi2 = new frameObj(600, 80, 2, '#00f', '#fff');
+    const soloc = new charObj(50, 60, false, 5);
+    soloc.addEvent('click', start);
+    soloc.on(soloi2, soloi1);
+    const multii1 = new textObj('ふたりでプレイ', 'sans-serif', '#fff', '#000', 4);
+    const multi2 = new frameObj(600, 80, 2, '#00f', '#fff');
+    const multic = new charObj(50, 85, false, 5);
+    multic.addEvent('click', battle);
+    multic.on(multi2, multii1);
+    stage.put(bcgc, iconc, soloc, multic, fullc, RQAor60btnc);
 }
 
-let continueperm = false;
-
-function conti() {
-    if (continueperm) {
-        continueperm = false;
-        send({
-            type: 'continue'
-        });
-    }
-}
-
-function full() {
-    btn.innerHTML = btn.innerHTML;
-    if (fullscreen === false) {
-        document.body.requestFullscreen();
-        fullscreen = true;
-    } else {
-        document.exitFullscreen();
-        fullscreen = false;
-    }
-}
-
-window.onload = startMenu;
+window.onload = () => {
+    document.body.appendChild(stage.canvasElement);
+    startMenu();
+};
