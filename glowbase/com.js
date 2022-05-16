@@ -590,7 +590,7 @@ function com(com_permhold) {
   let com_aglmaxhold = com_aglmaxfunc(com_typehold);
   let com_score = [false, false, false, false];
   if (!com_run) return;
-  if (com_type === 'i' && com_count < 8) {
+  if (com_type === 'i' && com_count < 8 && com_permhold) {
     ctr.c();
     return;
   }

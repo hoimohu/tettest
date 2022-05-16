@@ -1,3 +1,89 @@
+const worker = new Worker('worker.js');
+let workerFunc = null;
+let workerdata = null;
+
+worker.addEventListener('message', function (e) {
+    if (workerFunc != null) {
+        workerFunc(JSON.parse(e.data));
+    }
+    workerdata = JSON.parse(e.data);
+}, false);
+
+const ctr = {
+    rd: new KeyboardEvent("keydown", {
+        key: "ArrowRight"
+    }),
+    ld: new KeyboardEvent("keydown", {
+        key: "ArrowLeft"
+    }),
+    cd: new KeyboardEvent("keydown", {
+        key: "c"
+    }),
+    ud: new KeyboardEvent("keydown", {
+        key: "ArrowUp"
+    }),
+    zd: new KeyboardEvent("keydown", {
+        key: "z"
+    }),
+    sd: new KeyboardEvent("keydown", {
+        key: " "
+    }),
+    ru: new KeyboardEvent("keyup", {
+        key: "ArrowRight"
+    }),
+    lu: new KeyboardEvent("keyup", {
+        key: "ArrowLeft"
+    }),
+    cu: new KeyboardEvent("keyup", {
+        key: "c"
+    }),
+    uu: new KeyboardEvent("keyup", {
+        key: "ArrowUp"
+    }),
+    zu: new KeyboardEvent("keyup", {
+        key: "z"
+    }),
+    su: new KeyboardEvent("keyup", {
+        key: " "
+    }),
+    right: () => {
+        document.dispatchEvent(ctr.rd);
+        setTimeout(() => {
+            document.dispatchEvent(ctr.ru);
+        }, 36);
+    },
+    left: () => {
+        document.dispatchEvent(ctr.ld);
+        setTimeout(() => {
+            document.dispatchEvent(ctr.lu);
+        }, 36);
+    },
+    c: () => {
+        document.dispatchEvent(ctr.cd);
+        setTimeout(() => {
+            document.dispatchEvent(ctr.cu);
+        }, 36);
+    },
+    up: () => {
+        document.dispatchEvent(ctr.ud);
+        setTimeout(() => {
+            document.dispatchEvent(ctr.uu);
+        }, 36);
+    },
+    z: () => {
+        document.dispatchEvent(ctr.zd);
+        setTimeout(() => {
+            document.dispatchEvent(ctr.zu);
+        }, 36);
+    },
+    space: () => {
+        document.dispatchEvent(ctr.sd);
+        setTimeout(() => {
+            document.dispatchEvent(ctr.su);
+        }, 36);
+    },
+};
+
 const fieldElement = document.getElementById('field');
 const btn = document.getElementById('button');
 const tech = document.getElementById('technique');
@@ -71,9 +157,13 @@ function send(m) {
 }
 
 function chatsend() {
-    if (sendChatFunction != null && !(chatinp.value.match(/^[\s　ᅟᅠ᠎​‌⁣‍⁠⁡⁢⁣⁤ㅤﾠ]*$/))) {
+    if (sendChatFunction != null && chatinp.value.match(/^\d+$/)) {
+        sendChatFunction('[変更]速さを' + chatinp.value + 'に変更しました');
+        comspeed = chatinp.value - 0;
+        chatinp.value = "";
+    } else if (sendChatFunction != null && !chatinp.value.match(/^[\s　ᅟᅠ᠎​‌⁣‍⁠⁡⁢⁣⁤ㅤﾠ]*$/)) {
         sendChatFunction(chatinp.value);
-        chatinp.value = '';
+        chatinp.value = "";
     }
 }
 chatinp.addEventListener('keydown', e => {
@@ -412,6 +502,58 @@ document.addEventListener('keyup', e => {
     }
 });
 
+let comspeed = 100;
+let com_count = 0;
+let com_run = true;
+let com_hold = true;
+
+function com(com_permhold) {
+    if (!com_run) return;
+    com_count++;
+    if (nowMino.type === 'i' && com_count < 8 && com_permhold) {
+        ctr.c();
+        return;
+    }
+    workerFunc = function move(com_score) {
+        if (com_score[3] !== 0) {
+            setTimeout(() => {
+                com_score[3] = 0;
+                ctr.c();
+            }, comspeed);
+        } else if (com_score[2] !== 0) {
+            setTimeout(() => {
+                com_score[2]--;
+                ctr.up();
+                move(com_score);
+            }, comspeed);
+        } else if (com_score[1] < 0) {
+            setTimeout(() => {
+                com_score[1]++;
+                ctr.left();
+                move(com_score);
+            }, comspeed);
+        } else if (0 < com_score[1]) {
+            setTimeout(() => {
+                com_score[1]--;
+                ctr.right();
+                move(com_score);
+            }, comspeed);
+        } else {
+            setTimeout(() => {
+                ctr.space();
+            }, 36);
+        }
+    };
+    worker.postMessage(JSON.stringify({
+        type1: nowMino.type,
+        type2: nextMino[0],
+        typehold: holdMino,
+        com_hold: com_hold,
+        com_permhold: com_permhold,
+        main: main.data
+    }));
+}
+
 
 function minobag(hold = false) {
     if (game && runstopbool) {
@@ -590,6 +732,7 @@ function minobag(hold = false) {
                 } else {
                     permHold = true;
                 }
+                com(!hold);
             } else {
                 nowMino.landing = true;
             }
@@ -609,6 +752,15 @@ function minobag(hold = false) {
 
 function start() {
     starttime = Date.now();
+    workerFunc = null;
+    workerdata = null;
+
+    com_count = 0;
+    com_run = true;
+    com_hold = true;
+
+    com_run = true;
+
     rightLoopPerm = false;
     rightLoopCount = 0;
     leftLoopPerm = false;
@@ -661,6 +813,15 @@ function start() {
 function battle() {
     if (gamemode !== 'battle') {
         starttime = Date.now();
+        workerFunc = null;
+        workerdata = null;
+
+        com_count = 0;
+        com_run = true;
+        com_hold = true;
+
+        com_run = true;
+
         gamemode = 'battle';
 
         rightLoopPerm = false;
@@ -757,28 +918,13 @@ function battle() {
                 };
                 attackBattleFunction = (d) => {
                     if (d <= mydamage.length) {
-                        for (let i = 0; !(mydamage.length === 0 || 11 < i); i++) {
-                            main.data.shift();
-                            main.data.push(mydamage.shift());
-                        }
-                        if (1 === mydamage.length) {
-                            dMain.data[0][0] = 'i';
-                        } else if (2 === mydamage.length) {
-                            dMain.data[0][0] = 'j';
-                        } else if (3 === mydamage.length) {
-                            dMain.data[0][0] = 'l';
-                        } else if (4 === mydamage.length) {
-                            dMain.data[0][0] = 'o';
-                        } else if (5 === mydamage.length) {
-                            dMain.data[0][0] = 's';
-                        } else if (6 === mydamage.length) {
-                            dMain.data[0][0] = 't';
-                        } else if (7 < mydamage.length) {
-                            dMain.data[0][0] = 'z';
-                        } else {
-                            dMain.data[0][0] = '';
-                        }
+                        dMain.data[0][0] = '';
                         dMain.render().drawfield();
+                        for (let i = 0; i < mydamage.length; i++) {
+                            main.data.shift();
+                            main.data.push(mydamage[i]);
+                        }
+                        mydamage = [];
                         main.render().drawfield();
                     } else {
                         send({
@@ -959,7 +1105,11 @@ function battle() {
 }
 
 function startMenu() {
+    workerFunc = null;
+    workerdata = null;
+
     if (gamemode !== 'startmenu') {
+        com_run = false;
         rightLoopPerm = false;
         rightLoopCount = 0;
         leftLoopPerm = false;

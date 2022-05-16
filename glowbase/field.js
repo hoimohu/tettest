@@ -113,25 +113,25 @@ class field {
 
 class mino {
     landing = false;
-    fallTimer = 0;
+    fallTimer = 10;
     fallCounter = 0;
     fallCounterCounter = 0;
     angle = 0;
     tspin = false;
     miniTspin = false;
-    constructor(type, fi, landFunction, speed) {
-        this.inter = setInterval(() => {
-            if (this.landing === false) {
-                if (this.fallTimer <= 0) {
-                    this.minodown();
-                    this.fallTimer = 0;
-                } else {
-                    this.fallTimer--;
-                }
+    inter = setInterval(() => {
+        if (this.landing === false) {
+            if (this.fallTimer <= 0) {
+                this.minodown();
+                this.fallTimer = 10;
             } else {
-                clearInterval(this.inter);
+                this.fallTimer--;
             }
-        }, speed);
+        } else {
+            clearInterval(this.inter);
+        }
+    }, 125);
+    constructor(type, fi, landFunction) {
         this.type = type;
         this.canvas = fi.canvas;
         this.context = fi.context;
