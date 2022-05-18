@@ -1,89 +1,107 @@
 <!DOCTYPE html>
 <html lang="ja">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>test</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>test(html)</title>
     <style>
-        html,
-        body {
-            margin: 0;
-            padding: 0;
-        }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
 
-        #game {
-            width: 80%;
-            margin: 50px auto;
-        }
+      #game {
+        width: 80%;
+        margin: 50px auto;
+      }
 
-        #game,
-        #next,
-        #hold {
-            display: flex;
-            background-color: white;
-        }
+      #game,
+      #next,
+      #hold {
+        display: flex;
+        background-color: white;
+      }
 
-        #next,
-        #hold {
-            flex-direction: column;
-            width: 80px;
-        }
+      #next,
+      #hold {
+        flex-direction: column;
+        width: 80px;
+      }
 
-        #next div canvas,
-        #hold div canvas {
-            width: 80px;
-        }
+      #next div canvas,
+      #hold div canvas {
+        width: 80px;
+      }
 
-        #technique {
-            position: fixed;
-            top: 15%;
-            left: 15%;
-            font-size: 40px;
-            font-weight: bold;
-            color: orange;
-        }
+      #technique {
+        position: fixed;
+        top: 15%;
+        left: 15%;
+        font-size: 40px;
+        font-weight: bold;
+        color: orange;
+      }
 
-        #field,
-        #partner {
-            font-size: 30px;
-        }
+      #field,
+      #partner {
+        font-size: 30px;
+      }
 
-        #score::before {
-            content: 'スコア: ';
-        }
+      #score::before {
+        content: "スコア: ";
+      }
 
-        #chat {
-            height: 500px;
-            overflow: scroll;
-        }
+      #chat {
+        height: 500px;
+        overflow: scroll;
+      }
     </style>
-</head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-W1BS2XTE8R"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
 
-<body>
+      gtag("config", "G-W1BS2XTE8R");
+    </script>
+  </head>
+
+  <body>
     <div id="game">
-        <div id="hold">
-            <div>hold</div>
-            <div id="holdmino"></div>
-            <div id="score"></div>
-            <div id="technique"></div>
-            <div id="damage"></div>
-        </div>
-        <div id="field"></div>
-        <div id="next">
-            <div>next</div>
-        </div>
-        <div id="partner"></div>
-        <div id="chat"></div>
-        <div id="button">
-            <button onclick="full()">フルスクリーン|フルスクリーン解除</button>
-            <button onclick="start()">スタート</button>
-            <button onclick="battle()">2人で対戦</button>
-        </div>
+      <div id="hold">
+        <div>hold</div>
+        <div id="holdmino"></div>
+        <div id="score"></div>
+        <div id="technique"></div>
+        <div id="damage"></div>
+      </div>
+      <div id="field"></div>
+      <div id="next">
+        <div>next</div>
+      </div>
+      <div id="partner"></div>
+      <div id="chat"></div>
+      <div id="button">
+        <button onclick="full()">フルスクリーン|フルスクリーン解除</button>
+        <button onclick="start()">スタート</button>
+        <button onclick="battle()">2人で対戦</button>
+      </div>
     </div>
-    <div><input type="text" id="chatinp" placeholder="相手にめっせーじを送る..."><button onclick="chatsend()">送信</button></div>
+    <div>
+      <input
+        type="text"
+        id="chatinp"
+        placeholder="相手にめっせーじを送る..."
+      /><button onclick="chatsend()">送信</button>
+    </div>
     <script src="field.js"></script>
     <script src="game.js"></script>
-</body>
-
+  </body>
 </html>
