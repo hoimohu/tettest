@@ -1192,6 +1192,8 @@ function battle() {
 }
 
 function startMenu() {
+  resize();
+
   workerFunc = null;
   workerdata = null;
 
