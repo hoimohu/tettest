@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex , nofollow" />
+  <title>tetpixitest</title>
+  <style>
+    #buttonarea {
+      transition: 0.5s;
+      position: fixed;
+      top: 0%;
+      left: 0%;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      touch-action: none;
+      background-color: skyblue;
+      overflow: hidden;
+    }
+
+    #game {
+      position: fixed;
+      top: 0%;
+      left: 0%;
+      display: flex;
+      align-items: center;
+      width: 100%;
+      height: 100%;
+    }
+
+    #next,
+    #hold {
+      width: 80px;
+    }
+
+    #next,
+    #hold,
+    button {
+      color: #fff;
+      -webkit-text-stroke: 1px #000;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    #game>div {
+      height: 80%;
+      z-index: 3;
+    }
+
+    #next div canvas,
+    #hold div canvas {
+      width: 80px;
+    }
+
+    #technique {
+      position: fixed;
+      top: 15%;
+      left: 15%;
+      -webkit-text-stroke: 2px #fff;
+      font-size: 3em;
+      font-weight: bold;
+      z-index: 5;
+    }
+
+    #field,
+    #partner {
+      font-size: 30px;
+      z-index: 2;
+    }
+
+    #field canvas,
+    #partner canvas {
+      max-height: 75vh;
+    }
+
+    #next::before {
+      content: "NEXT";
+    }
+
+    #hold::before {
+      content: "HOLD";
+    }
+
+    #score::before {
+      content: "スコア: ";
+    }
+
+    #line::before {
+      content: "消した列: ";
+    }
+
+    #chat {
+      position: fixed;
+      bottom: 1%;
+      left: 0.5%;
+      width: 100%;
+    }
+
+    #chatinp {
+      width: 90%;
+    }
+
+    #chat button {
+      width: 8%;
+    }
+
+    #message {
+      transition: 0.5s;
+      position: fixed;
+      top: 10%;
+      left: 0px;
+      height: 80%;
+      opacity: 0.2;
+      overflow-y: auto;
+      z-index: 4;
+      scroll-behavior: smooth;
+    }
+
+    #message::-webkit-scrollbar {
+      opacity: 0;
+    }
+
+    #message:hover {
+      opacity: 1;
+    }
+
+    #message div {
+      width: max-content;
+      margin: 10px;
+      padding: 10px;
+      border-radius: 6px;
+      background-color: #fff;
+    }
+
+    #record div {
+      word-break: break-all;
+    }
+
+    #record div:nth-child(1)::before {
+      content: "40ライン";
+    }
+
+    #record div:nth-child(2)::before {
+      content: "99ライン";
+    }
+
+    #record div:nth-child(3)::before {
+      content: "999ライン";
+    }
+
+    .none {
+      display: none;
+    }
+
+    .flex {
+      display: flex;
+    }
+
+    .red {
+      color: red;
+    }
+
+    .blue {
+      color: blue;
+    }
+
+    .orange {
+      color: orange;
+    }
+
+    .trop2 {
+      transition: 2s;
+      opacity: 1;
+    }
+
+    .op0 {
+      opacity: 0;
+    }
+
+    .op2 {
+      opacity: 0.2;
+    }
+
+    .op6 {
+      opacity: 0.6;
+    }
+
+    .flexbetween {
+      justify-content: space-between;
+    }
+
+    .flexcenter {
+      justify-content: center;
+    }
+
+    #pixilayer {
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+    }
+  </style>
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-W1BS2XTE8R"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+    gtag("js", new Date());
+
+    gtag("config", "G-W1BS2XTE8R");
+  </script>
+</head>
+
+<body>
+  <div id="message"></div>
+  <div id="game">
+    <div id="hold">
+      <div id="holdmino"></div>
+      <div id="score"></div>
+      <div id="line"></div>
+      <div id="damage"></div>
+      <div id="record"></div>
+    </div>
+    <div id="field"></div>
+    <div id="next"></div>
+    <div id="partner"></div>
+  </div>
+  <div id="buttonarea">
+    <div id="button">
+      <button type="button" onclick="full()">
+        フルスクリーン|フルスクリーン解除
+      </button>
+      <button type="button" onclick="start()">スタート</button>
+      <button type="button" onclick="battle()">2人で対戦</button>
+    </div>
+  </div>
+  <div id="technique"></div>
+  <div id="chat" class="none">
+    <input type="text" id="chatinp" placeholder="ここに入力して相手に送信..." />
+    <button type="button" onclick="chatsend()">送信</button>
+  </div>
+  <script src="pixi.min.js"></script>
+  <script src="field.js"></script>
+  <script src="game.js"></script>
+</body>
+
+</html>

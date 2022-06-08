@@ -1,7 +1,7 @@
 /.vscode
-/icon.png
+/*.png
 /node_modules
 /package.json
 /server.js
 /yarn.lock
-t.html
+merge.ps1
