@@ -1,5 +1,5 @@
 /.vscode
-/icon.png
+/*.png
 /node_modules
 /package.json
 /server.js
