@@ -24,6 +24,20 @@ const mino_s = {
     sp: [[]],
     mp1: [[]],
     mp2: [[]]
+  },
+  position: {
+    sp: {
+      x: innerWidth / 2,
+      y: innerHeight / 2,
+    },
+    mp1: {
+      x: innerWidth / 4,
+      y: innerHeight / 2,
+    },
+    mp2: {
+      x: innerWidth / 4 * 3,
+      y: innerHeight / 2,
+    },
   }
 };
 
@@ -35,11 +49,34 @@ function SPrerender() {
   }
 }
 
+function MP1rerender() {
+  for (let i2 = 0; i2 < 22; i2++) {
+    for (let i3 = 0; i3 < 10; i3++) {
+      mino_s.mp[0][mino_s.mp[0].length - 1 - i2][i3].tint = mcolor[mino_s.stage.mp1[0][mino_s.stage.mp1[0].length - 1 - i2][i3]];
+    }
+  }
+}
+
+function MP2rerender() {
+  for (let i2 = 0; i2 < 22; i2++) {
+    for (let i3 = 0; i3 < 10; i3++) {
+      mino_s.mp[1][mino_s.mp[1].length - 1 - i2][i3].tint = mcolor[mino_s.stage.mp2[0][mino_s.stage.mp2[0].length - 1 - i2][i3]];
+    }
+  }
+}
+
 const app = new PIXI.Application({
   backgroundColor: 0x87CEEB,
   resolution: window.devicePixelRatio || 1,
   resizeTo: window
 });
+
+function pixichange(child) {
+  app.stage.children.forEach(e => {
+    app.stage.removeChild(e);
+  });
+  app.stage.addChild(child);
+}
 
 const singleplay_c = new PIXI.Container();
 const multiplay_c = new PIXI.Container();
@@ -52,7 +89,6 @@ for (let i1 = 0; i1 < 3; i1++) {
       mino_s.sp.push([]);
     } else if (i1 === 1) {
       mino_s.mp[0].push([]);
-    } else {
       mino_s.mp[1].push([]);
     }
     for (let i3 = 0; i3 < 10; i3++) {
@@ -61,8 +97,6 @@ for (let i1 = 0; i1 < 3; i1++) {
         s.width = 30;
         s.height = 30;
         s.tint = mcolor[''];
-        s.x = innerWidth / 2 - 150 + 30 * i3;
-        s.y = innerHeight / 2 - 330 + 30 * i2;
         singleplay_c.addChild(s);
         mino_s.sp[i2].push(s);
       } else if (i1 === 1) {
@@ -70,25 +104,19 @@ for (let i1 = 0; i1 < 3; i1++) {
         s.width = 30;
         s.height = 30;
         s.tint = mcolor[''];
-        s.x = innerWidth / 2 - 150 + 30 * i3;
-        s.y = innerHeight / 2 - 330 + 30 * i2;
         multiplay_c.addChild(s);
-        mino_s.mp[0][i2].push(s);
+        mino_s.mp[1][i2].push(s);
       } else {
         const s = new PIXI.Sprite(mino_t);
         s.width = 30;
         s.height = 30;
         s.tint = mcolor[''];
-        s.x = innerWidth / 2 - 150 + 30 * i3;
-        s.y = innerHeight / 2 - 330 + 30 * i2;
         multiplay_c.addChild(s);
-        mino_s.mp[1][i2].push(s);
+        mino_s.mp[0][i2].push(s);
       }
     }
   }
 }
-
-app.stage.addChild(singleplay_c);
 
 app.view.id = 'pixilayer';
 document.body.appendChild(app.view);
@@ -506,10 +534,12 @@ document.addEventListener("keydown", (e) => {
         if (HNalpha === false) {
           btnareaElement.className = "op2";
           chatElement.style = "display:none;";
+          messageElement.style = "display:none;";
           HNalpha = true;
         } else {
           btnareaElement.className = "";
           chatElement.style = "";
+          messageElement.style = "";
           HNalpha = false;
         }
       } else if (e.key === "r" && gamemode === "normal") {
@@ -592,7 +622,6 @@ function minobag(hold = false) {
     }
     if (clearline !== 0) {
       lineElement.innerText = linebreak;
-      // main.render().drawfield();
     }
 
     if (nowMino != null) {
@@ -767,6 +796,7 @@ function start() {
     '<button onclick="full()">フルスクリーン|フルスクリーン解除</button><button onclick="start()">最初から</button><button onclick="startMenu()" type="button">メニューに戻る</button>';
 
   gamemode = "normal";
+  resize();
 
   if (nowMino != null) {
     main.canvas.remove();
@@ -792,6 +822,7 @@ function start() {
   ren = -1;
   holdMino = "none";
   permHold = true;
+  pixichange(singleplay_c);
   main = new field(10, 50, fieldElement, () => {
     game = false;
     gameset = true;
@@ -806,6 +837,7 @@ function battle() {
   if (gamemode !== "battle") {
     starttime = Date.now();
     gamemode = "battle";
+    resize();
 
     rightLoopPerm = false;
     rightLoopCount = 0;
@@ -854,10 +886,13 @@ function battle() {
     holdMino = "none";
     permHold = true;
     mydamage = [];
+    pixichange(multiplay_c);
     main = new field(10, 50, fieldElement, () => {
       game = false;
       gameset = true;
-    });
+    }, { rerender: MP1rerender, stage: mino_s.stage.mp1 });
+    mino_s.stage.mp1[0] = main.data;
+    main.rerender();
     if (holdMino != null) {
       const canvas = previewMino[holdMino].canvas.cloneNode();
       const context = canvas.getContext("2d");
@@ -865,9 +900,9 @@ function battle() {
       holdElement.innerHTML = "";
       holdElement.appendChild(canvas);
     }
-    main.netline().drawfield();
-    pMain = new field(10, 50, partner);
-    pMain.netline().drawfield();
+    pMain = new field(10, 50, partner, null, { rerender: MP2rerender, stage: mino_s.stage.mp2 });
+    mino_s.stage.mp2[0] = pMain.data;
+    pMain.rerender();
     dMain = new field(1, 1, damageElement);
     dMain.netline().drawfield();
 
@@ -924,7 +959,6 @@ function battle() {
             dMain.data[0][0] = "";
           }
           dMain.render().drawfield();
-          main.render().drawfield();
           if (0 < senddamage) {
             send({
               type: "battle",
@@ -980,7 +1014,6 @@ function battle() {
           msgDisplay("" + ms.count, "blue");
         } else if (ms.type === "start") {
           msgDisplay("START!", "greenyellow");
-          main.netline().drawfield();
           minobag();
         } else if (ms.type === "attack") {
           const insertArray = [];
@@ -1024,8 +1057,8 @@ function battle() {
           }
           dMain.render().drawfield();
         } else if (ms.type === "field") {
-          pMain.data = ms.data;
-          pMain.render().drawfield();
+          mino_s.stage.mp2[0] = ms.data;
+          pMain.rerender();
         } else if (ms.type === "lose") {
           gamemode = "fin";
           game = false;
@@ -1182,22 +1215,62 @@ function full() {
 }
 
 function resize() {
-  if (innerWidth < innerHeight) {
-    gameElement.className = "flexbetween";
+  mino_s.position.sp = {
+    x: innerWidth / 2,
+    y: innerHeight / 2,
+  };
+  mino_s.position.mp1 = {
+    x: innerWidth / 4,
+    y: innerHeight / 2,
+  };
+  mino_s.position.mp2 = {
+    x: innerWidth / 4 * 3,
+    y: innerHeight / 2,
+  };
+  if (innerWidth <= 460) {
+    mino_s.position.mp1 = {
+      x: innerWidth / 2,
+      y: innerHeight / 2,
+    };
+    mino_s.position.mp2 = {
+      x: innerWidth / 2,
+      y: innerHeight / 2,
+    };
+    fieldElement.style = 'width: 140px';
+    gameElement.style = 'left:' + (innerWidth / 2 - 150) + 'px;';
+  } else if (innerWidth <= 760) {
+    mino_s.position.mp1 = {
+      x: innerWidth / 2,
+      y: innerHeight / 2,
+    };
+    mino_s.position.mp2 = {
+      x: innerWidth / 2,
+      y: innerHeight / 2,
+    };
+    fieldElement.style = '';
+    gameElement.style = 'left:' + (innerWidth / 2 - 230) + 'px;';
+  } else if (gamemode === 'normal') {
+    fieldElement.style = '';
+    gameElement.style = 'left:' + (innerWidth / 2 - 230) + 'px;';
   } else {
-    gameElement.className = "flexcenter";
+    fieldElement.style = '';
+    gameElement.style = 'left:' + (innerWidth / 4 - 230) + 'px;';
   }
   for (let i1 = 0; i1 < 3; i1++) {
     for (let i2 = 0; i2 < 22; i2++) {
       for (let i3 = 0; i3 < 10; i3++) {
         if (i1 === 0) {
           const s = mino_s.sp[i2][i3];
-          s.x = innerWidth / 2 - 150 + 30 * i3;
-          s.y = innerHeight / 2 - 330 + 30 * i2;
+          s.x = mino_s.position.sp.x - 150 + 30 * i3;
+          s.y = mino_s.position.sp.y - 330 + 30 * i2;
         } else if (i1 === 1) {
-          mino_s.mp[0][i2][i3];
+          const s = mino_s.mp[0][i2][i3];
+          s.x = mino_s.position.mp1.x - 150 + 30 * i3;
+          s.y = mino_s.position.mp1.y - 330 + 30 * i2;
         } else {
-          mino_s.mp[0][i2][i3];
+          const s = mino_s.mp[1][i2][i3];
+          s.x = mino_s.position.mp2.x - 150 + 30 * i3;
+          s.y = mino_s.position.mp2.y - 330 + 30 * i2;
         }
       }
     }
