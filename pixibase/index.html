@@ -26,8 +26,9 @@
     }
 
     #game {
+      transition: 0.5s;
       position: fixed;
-      top: 0px;
+      top: calc(50% - 330px);
       display: flex;
       align-items: center;
       height: 100%;
@@ -72,11 +73,6 @@
       width: 300px;
       font-size: 30px;
       z-index: 2;
-    }
-
-    #field canvas,
-    #partner canvas {
-      max-height: 75vh;
     }
 
     #next::before {
@@ -174,6 +170,10 @@
       color: orange;
     }
 
+    .fuchsia {
+      color: fuchsia;
+    }
+
     .trop2 {
       transition: 2s;
       opacity: 1;
@@ -200,8 +200,8 @@
     }
 
     #pixilayer {
-      width: 100vw;
-      height: 100vh;
+      margin: 10%;
+      width: 80%;
       z-index: 0;
     }
   </style>
@@ -233,13 +233,7 @@
     <div id="partner"></div>
   </div>
   <div id="buttonarea">
-    <div id="button">
-      <button type="button" onclick="full()">
-        フルスクリーン|フルスクリーン解除
-      </button>
-      <button type="button" onclick="start()">スタート</button>
-      <button type="button" onclick="battle()">2人で対戦</button>
-    </div>
+    <div id="button"></div>
   </div>
   <div id="technique"></div>
   <div id="chat" class="none">

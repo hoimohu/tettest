@@ -1,3 +1,5 @@
+const version = '1.0.0 htc pixi com';
+
 const worker = new Worker("worker.js");
 let workerFunc = null;
 let workerdata = null;
@@ -88,6 +90,115 @@ const ctr = {
   },
 };
 
+const mcolor = {
+  i: 0x00FFFF,
+  t: 0x800080,
+  s: 0xADFF2F,
+  z: 0xFF0000,
+  j: 0x0000FF,
+  l: 0xFFA500,
+  o: 0xFFFF00,
+  d: 0xFFFFFF,
+  si: 0x00B6B6,
+  st: 0x5D025D,
+  ss: 0x7CB621,
+  sz: 0xB60000,
+  sj: 0x0000B6,
+  sl: 0xB67600,
+  so: 0xB6B600,
+  sd: 0xAAAAAA,
+  '': 0x505050
+};
+const mino_s = {
+  sp: [],
+  mp: [[], []],
+  stage: {
+    sp: [[]],
+    mp1: [[]],
+    mp2: [[]]
+  },
+  position: {
+    sp: {
+      x: innerWidth / 2,
+      y: innerHeight / 2,
+    },
+    mp1: {
+      x: innerWidth / 4,
+      y: innerHeight / 2,
+    },
+    mp2: {
+      x: innerWidth / 4 * 3,
+      y: innerHeight / 2,
+    },
+  }
+};
+
+const app = new PIXI.Application({
+  backgroundColor: 0x87CEEB,
+  resolution: window.devicePixelRatio || 1,
+  resizeTo: window
+});
+
+function pixichange(child) {
+  app.stage.children.forEach(e => {
+    app.stage.removeChild(e);
+  });
+  app.stage.addChild(child);
+}
+
+const menu_c = new PIXI.Container();
+const singleplay_c = new PIXI.Container();
+const multiplay_c = new PIXI.Container();
+
+const mino_t = PIXI.Texture.from('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAACqUlEQVR4Xu3dsZJZARxG8XgBvUfw/qP0DDqtUq/SyZJxRyxX5qzDTJxt0uT/uc5vTXSZLJfLw6+vn9lsdvyjnzcV2Gw2p1eenEFCeZPE18ueMU4g6/X6sN1uh6fpk/JamEuM6XT6B+T4CKG8FuL4atcYwyfk/CihvA7lFsY3kD4prwG5h3ETJBQXZQzjLkgoDsojjFGQUJ6L8i8YD0GuUZ77iJ+1tt/vT2/4+NV27Gf42jv2ly6/fX1Wxue9WwVkPp8/7wk/bGm1Wj3/ExII/y0KhLdTLgNRsvLRQHg75TIQJSsfDYS3Uy4DUbLy0UB4O+UyECUrHw2Et1MuA1Gy8tFAeDvlMhAlKx8NhLdTLgNRsvLRQHg75TIQJSsfDYS3Uy4DUbLy0UB4O+UyECUrHw2Et1MuA1Gy8tFAeDvlMhAlKx8NhLdTLgNRsvLRQHg75TIQJSsfDYS3Uy4DUbLy0UB4O+UyECUrHw2Et1MuA1Gy8tFAeDvlMhAlKx8NhLdTLgNRsvLRQHg75TIQJSsfDYS3Uy4DUbLy0UB4O+UyECUrHw2Et1MuA1Gy8tFAeDvlMhAlKx8NhLdTLgNRsvLRQHg75TIQJSsfDYS3Uy4DUbLy0UB4O+UyECUrHw2Et1MuA1Gy8tFAeDvlMhAlKx8NhLdTLgNRsvLRQHg75TIQJSsfDYS3Uy4DUbLy0UB4O+UyECUrHw2Et1MuA1Gy8tFAeDvlMhAlKx8NhLdTLgNRsvLRQHg75TIQJSsfDYS3Uy6fBrLZbJQH/NTRH/0H92E4vzZjKJP1en249bKXGI9Uncf+/1Z3u93wpu41vQkShvfL8AjlG0gYHsZ5eQzlL5AwfIxHKANIGK/DGEM5gYTxeox7KJPFYjF8y+rb1HtgLv9NGUDCeA/G9SflN8m4jgrCSmUhAAAAAElFTkSuQmCC');
+const backimg_s = PIXI.Sprite.from('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAApCAYAAABz26rUAAAAAXNSR0IArs4c6QAAAidJREFUWEftWMltw0AMlOtKFXbyzDcNuAA/XIAbyDdPx6nCdSVggDEohqdWRwTIHwPaXe4Mh8Ndadet/LdbOf5uI7C0gpMqcHg6fN/ut0n3mDT4agjMAdQq1U0ByoylQKsymfWjKICN6D/TlaSxM0AnLSEO/PPrGnJ43r90nESLgs0K0OYSNAG0fpjLSVQIyLlNBDh4Dvr8elbxnz5Ov88liUUIaOAt4JwNJwEVFiVAIDLAJQmuAo2RJ7wmYJ3o6RKSWYICmdKR9SRVwLjXACy10gQkCE6AFACoqP55HA2w1gA0tRAnTcBTAKBBwupAl7fLY+j4fuyZGQNaAiiu1r1ozYNAdJhkCXCQ3oFABDzQWtkRCXmGlBSQQRGQK1AhUDE/VDAJRNcBy2C8C9EmYxKQJekqgBYWdQKtLMZUgIPWPOMqIN0uwVoGo3lVEuQBzfyWgjB9SAAlQZnI1ihvoZky4gZGkqLSG0SAZza6YlrSYx0HDbD0LALO14ce0LpKVgXayDsHNKCzEIhU0EBXslqZW1YgyiqNSwCVrNL67PyyB+TtsZKp7NwsAe4feSvtXSWkB0Ai01m42cYiAODex7F/R8DLttYJVQLSuBUFsmWhtVd6Vv0U+YcABcGdvHq6RmWkHWBVwFKF3m3Ues8dooAmdytYt4QwaH1p8IypZXZIOUSnfYoATcp+YUPAKTKbJZN+ockGnHveRmDujLtdaGkwQ/ZffQn9AMT2MUjamBt7AAAAAElFTkSuQmCC');
+
+backimg_s.scale.x = 6;
+backimg_s.scale.y = 6;
+backimg_s.anchor.set(0.5);
+backimg_s.x = innerWidth / 2;
+backimg_s.y = innerHeight / 3;
+menu_c.addChild(backimg_s);
+
+for (let i1 = 0; i1 < 3; i1++) {
+  for (let i2 = 0; i2 < 22; i2++) {
+    if (i1 === 0) {
+      mino_s.sp.push([]);
+    } else if (i1 === 1) {
+      mino_s.mp[0].push([]);
+      mino_s.mp[1].push([]);
+    }
+    for (let i3 = 0; i3 < 10; i3++) {
+      if (i1 === 0) {
+        const s = new PIXI.Sprite(mino_t);
+        s.width = 30;
+        s.height = 30;
+        s.tint = mcolor[''];
+        singleplay_c.addChild(s);
+        mino_s.sp[i2].push(s);
+      } else if (i1 === 1) {
+        const s = new PIXI.Sprite(mino_t);
+        s.width = 30;
+        s.height = 30;
+        s.tint = mcolor[''];
+        multiplay_c.addChild(s);
+        mino_s.mp[1][i2].push(s);
+      } else {
+        const s = new PIXI.Sprite(mino_t);
+        s.width = 30;
+        s.height = 30;
+        s.tint = mcolor[''];
+        multiplay_c.addChild(s);
+        mino_s.mp[0][i2].push(s);
+      }
+    }
+  }
+}
+
+app.view.id = 'pixilayer';
+document.body.appendChild(app.view);
+
+
 const fieldElement = document.getElementById("field");
 const btn = document.getElementById("button");
 const tech = document.getElementById("technique");
@@ -99,7 +210,6 @@ const chatElement = document.getElementById("chat");
 const chatinp = document.getElementById("chatinp");
 const messageElement = document.getElementById("message");
 const holdElement = document.getElementById("holdmino");
-const backimgElement = document.getElementById("backimg");
 const gameElement = document.getElementById("game");
 const btnareaElement = document.getElementById("buttonarea");
 const lineElement = document.getElementById("line");
@@ -117,6 +227,10 @@ let nextNum = 5;
 const mino7 = ["i", "t", "o", "s", "z", "l", "j"];
 const nextElement = [];
 const nextMino = [];
+
+const nowminotrust = {
+  trust: null
+};
 
 let ren = -1;
 let linebreak = 0;
@@ -139,6 +253,36 @@ let endBattleFunction;
 let attackBattleFunction;
 
 let sendChatFunction;
+
+let role;
+let myname = 'ななしのごんべえ';
+
+
+function SPrerender() {
+  for (let i2 = 0; i2 < 22; i2++) {
+    for (let i3 = 0; i3 < 10; i3++) {
+      mino_s.sp[mino_s.sp.length - 1 - i2][i3].tint = mcolor[mino_s.stage.sp[0][mino_s.stage.sp[0].length - 1 - i2][i3]];
+    }
+  }
+}
+
+function MP1rerender() {
+  for (let i2 = 0; i2 < 22; i2++) {
+    for (let i3 = 0; i3 < 10; i3++) {
+      mino_s.mp[0][mino_s.mp[0].length - 1 - i2][i3].tint = mcolor[mino_s.stage.mp1[0][mino_s.stage.mp1[0].length - 1 - i2][i3]];
+    }
+  }
+  if (battleFunction != null) battleFunction();
+}
+
+function MP2rerender() {
+  for (let i2 = 0; i2 < 22; i2++) {
+    for (let i3 = 0; i3 < 10; i3++) {
+      mino_s.mp[1][mino_s.mp[1].length - 1 - i2][i3].tint = mcolor[mino_s.stage.mp2[0][mino_s.stage.mp2[0].length - 1 - i2][i3]];
+    }
+  }
+}
+
 
 function msgDisplay(msg, color) {
   const txte = document.createElement("div");
@@ -474,6 +618,27 @@ RQAor90btnE.addEventListener("click", RQAor60FPS);
 btnareaElement.appendChild(RQAor90btnE);
 
 document.addEventListener("keydown", (e) => {
+  if (e.key === "a") {
+    if (HNalpha === false) {
+      btnareaElement.style = 'display:none;';
+      chatElement.style = "display:none;";
+      messageElement.style = "display:none;";
+      gameElement.className = 'op2';
+      HNalpha = true;
+    } else {
+      btnareaElement.style = '';
+      chatElement.style = "";
+      messageElement.style = "";
+      gameElement.className = '';
+      HNalpha = false;
+    }
+  } else if (e.key === 'f') {
+    comspeed -= 5;
+    if (typeof sendChatFunction === 'function') sendChatFunction("[変更]速さを" + comspeed + "に変更しました");
+  } else if (e.key === 's') {
+    comspeed += 5;
+    if (typeof sendChatFunction === 'function') sendChatFunction("[変更]速さを" + comspeed + "に変更しました");
+  }
   if (game && nowMino != null) {
     if (!(e.ctrlKey === true || document.activeElement === chatinp)) {
       e.preventDefault();
@@ -500,16 +665,6 @@ document.addEventListener("keydown", (e) => {
             holdMino = nowMino.type;
             minobag(true);
           }
-        }
-      } else if (e.key === "a") {
-        if (HNalpha === false) {
-          btnareaElement.className = "op2";
-          chatElement.style = "display:none;";
-          HNalpha = true;
-        } else {
-          btnareaElement.className = "";
-          chatElement.style = "";
-          HNalpha = false;
         }
       } else if (e.key === "r" && gamemode === "normal") {
         start();
@@ -645,7 +800,6 @@ function minobag(hold = false) {
     }
     if (clearline !== 0) {
       lineElement.innerText = linebreak;
-      main.render().drawfield();
     }
 
     if (nowMino != null) {
@@ -760,7 +914,8 @@ function minobag(hold = false) {
         for (let n = 0; n < linebreak / 40; n++) {
           minospeed -= 50;
         }
-        nowMino = new mino(nextMino.shift(), main, minobag, minospeed);
+        nowMino = new mino(nextMino.shift(), main, minobag, minospeed, nowminotrust);
+        nowminotrust.trust = nowMino;
         for (let i = 0; i < 5; i++) {
           const canvas = previewMino[nextMino[i]].canvas.cloneNode();
           const context = canvas.getContext("2d");
@@ -777,7 +932,7 @@ function minobag(hold = false) {
         }
         score += damage * 100 + plusscore * 100;
         scoreElement.innerText = score;
-        nowMino.render();
+        // nowMino.render();
         if (gamemode === "battle" && hold === false) {
           attackBattleFunction(damage);
           battleFunction();
@@ -826,11 +981,11 @@ function start() {
 
   lineElement.innerText = "0";
   recordElement.innerHTML = "";
-  backimgElement.className = "";
   btn.innerHTML =
     '<button onclick="full()">フルスクリーン|フルスクリーン解除</button><button onclick="start()">最初から</button><button onclick="startMenu()" type="button">メニューに戻る</button>';
 
   gamemode = "normal";
+  resize();
 
   if (nowMino != null) {
     main.canvas.remove();
@@ -856,205 +1011,116 @@ function start() {
   ren = -1;
   holdMino = "none";
   permHold = true;
+  pixichange(singleplay_c);
   main = new field(10, 50, fieldElement, () => {
     game = false;
     gameset = true;
-  });
-  main.netline().drawfield();
+  }, { rerender: SPrerender, stage: mino_s.stage.sp });
+
+  mino_s.stage.sp[0] = JSON.parse(JSON.stringify(main.data));
+
   minobag();
 }
 
-function battle() {
-  if (gamemode !== "battle") {
-    starttime = Date.now();
-    workerFunc = null;
-    workerdata = null;
-
-    com_count = 0;
-    com_run = true;
-    com_hold = true;
-
-    com_run = true;
-
-    gamemode = "battle";
-
-    rightLoopPerm = false;
-    rightLoopCount = 0;
-    leftLoopPerm = false;
-    leftLoopCount = 0;
-    downLoopPerm = false;
-    downLoopCount = 0;
-
-    linebreak = 0;
-
-    messageElement.innerHTML = "";
-    tech.innerHTML = "";
-    next.innerHTML = "";
-    scoreElement.innerHTML = "";
-    damageElement.innerHTML = "";
-    holdElement.innerHTML = "";
-    fieldElement.innerHTML = "";
-    partner.innerHTML = "";
-    lineElement.innerText = "0";
-    recordElement.innerHTML = "";
-    btn.innerHTML =
-      '<button type="button" onclick="full()">フルスクリーン|フルスクリーン解除</button>';
-    chatinp.value = "";
-
-    while (nextElement.length !== 0) {
-      nextElement.shift();
-    }
-    for (let i = -1; i < nextNum; i++) {
-      const d = document.createElement("div");
-      next.appendChild(d);
-      nextElement.push(d);
-    }
-
-    if (nowMino != null) {
-      main.canvas.remove();
-      nowMino.landing = true;
-      while (nextMino.length !== 0) {
-        nextMino.shift();
-      }
-    }
-    game = true;
-    runstopbool = true;
-    btb = false;
-    score = 0;
-    ren = -1;
-    holdMino = "none";
-    permHold = true;
-    mydamage = [];
-    main = new field(10, 50, fieldElement, () => {
-      game = false;
-      gameset = true;
-    });
-    if (holdMino != null) {
-      const canvas = previewMino[holdMino].canvas.cloneNode();
-      const context = canvas.getContext("2d");
-      context.drawImage(previewMino[holdMino].canvas, 0, 0);
-      holdElement.innerHTML = "";
-      holdElement.appendChild(canvas);
-    }
-    main.netline().drawfield();
-    pMain = new field(10, 50, partner);
-    pMain.netline().drawfield();
-    dMain = new field(1, 1, damageElement);
-    dMain.netline().drawfield();
-
-    backimgElement.className = "";
-
+function connect(r) {
+  if (gamemode !== 'connect') {
+    gamemode = 'connect';
+    role = r;
     if (sock == null) {
       msgDisplay("サーバーに接続します", "blue");
 
       //websocket
-      // sock = new WebSocket("ws://127.0.0.1:8080");
-      sock = new WebSocket("wss://horse-tortoiseshell-crater.glitch.me");
+      sock = new WebSocket("ws://127.0.0.1:8080");
+      // sock = new WebSocket("wss://horse-tortoiseshell-crater.glitch.me");
 
       sock.addEventListener("open", () => {
-        chatElement.className = "flex";
-        battleFunction = () => {
-          send({
-            type: "battle",
-            battle: "field",
-            data: main.data,
-          });
-        };
-        endBattleFunction = () => {
-          if (gameset && gamemode === "battle") {
-            send({
-              type: "battle",
-              battle: "lose",
-              score: score,
-            });
-          }
-        };
-        attackBattleFunction = (d) => {
-          let senddamage = d;
-          for (let i = 0; i < d && 0 < mydamage.length; i++) {
-            senddamage--;
-            mydamage.shift();
-          }
-          for (let i = 0; !(mydamage.length === 0 || 11 < i); i++) {
-            main.data.shift();
-            main.data.push(mydamage.shift());
-          }
-          if (1 === mydamage.length) {
-            dMain.data[0][0] = "i";
-          } else if (2 === mydamage.length) {
-            dMain.data[0][0] = "j";
-          } else if (3 === mydamage.length) {
-            dMain.data[0][0] = "l";
-          } else if (4 === mydamage.length) {
-            dMain.data[0][0] = "o";
-          } else if (5 === mydamage.length) {
-            dMain.data[0][0] = "s";
-          } else if (6 === mydamage.length) {
-            dMain.data[0][0] = "t";
-          } else if (7 < mydamage.length) {
-            dMain.data[0][0] = "z";
-          } else {
-            dMain.data[0][0] = "";
-          }
-          dMain.render().drawfield();
-          main.render().drawfield();
-          if (0 < senddamage) {
-            send({
-              type: "battle",
-              battle: "attack",
-              data: senddamage,
-            });
-          }
-        };
-        sendChatFunction = (d, tech) => {
-          if (tech === true) {
-            send({
-              type: "tech",
-              data: d,
-            });
-          } else {
-            send({
-              type: "chat",
-              data: d,
-            });
-          }
-        };
+        msgDisplay('サーバーに接続しました', 'blue');
       });
       sock.addEventListener("message", (e) => {
         const ms = JSON.parse(e.data);
-        if (ms.type === "key") {
+        if (ms.type === 'key') {
           send({
-            type: "keyconnect",
-            data: ms.data,
+            type: 'keyconnect',
+            data: version,
+            name: myname
           });
+        } else if (ms.type === 'regOK') {
+          if (role === 'makeroom') {
+            send({
+              type: 'makeroom',
+              mode: 'battle'
+            });
+          } else {
+            send({
+              type: 'getrooms'
+            });
+          }
+        } else if (ms.type === "rooms") {
+          if (Object.keys(ms.data).length === 0) {
+            msgDisplay('対戦が見つかりませんでした', 'blue');
+            startMenu();
+          } else {
+            btn.innerHTML = '<button onclick="startMenu()" type="button">戻る</button>';
+            const parent = document.createElement('div');
+            ms.data.forEach(e => {
+              const element = document.createElement('button');
+              element.innerText = '対戦ID: ' + e + 'の部屋';
+              element.addEventListener('click', () => {
+                parent.remove();
+                send({
+                  type: role,
+                  id: e,
+                  mode: 'battle'
+                });
+              });
+              parent.appendChild(element);
+              btn.appendChild(parent);
+            });
+          }
+        } else if (ms.type === 'AreYouReady') {
+          chatElement.className = "flex";
+          sendChatFunction = (d, tech) => {
+            if (tech === true) {
+              send({
+                type: "tech",
+                data: d,
+              });
+            } else {
+              send({
+                type: "chat",
+                name: myname,
+                data: d,
+              });
+            }
+          };
+          let click = false;
+          const e = document.createElement('button');
+          e.innerText = '準備OK?';
+          e.addEventListener('click', () => {
+            if (click === false) {
+              click = true;
+              e.innerText = '準備完了!';
+              send({
+                type: 'ready'
+              });
+            }
+          });
+          btn.innerHTML = '<button onclick="startMenu()" type="button">退出する ※対戦は解散されます</button>';
+          btn.appendChild(e);
+        } else if (ms.type === "startobserver") {
+          if (role === 'observeroom') {
+            battle();
+          }
         } else if (ms.type === "count") {
-          if (ms.count === 3) {
-            if (nextMino.length <= nextNum) {
-              while (nextMino.length <= nextNum) {
-                const mino7a = JSON.parse(JSON.stringify(mino7));
-                while (mino7a.length !== 0) {
-                  nextMino.push(
-                    mino7a.splice(
-                      Math.floor(Math.random() * mino7a.length),
-                      1
-                    )[0]
-                  );
-                }
-              }
-            }
-            for (let i = 0; i < 5; i++) {
-              const canvas = previewMino[nextMino[i]].canvas.cloneNode();
-              const context = canvas.getContext("2d");
-              context.drawImage(previewMino[nextMino[i]].canvas, 0, 0);
-              nextElement[i].innerHTML = "";
-              nextElement[i].appendChild(canvas);
-            }
+          if (ms.count === 3 && role !== 'observeroom') {
+            battle();
           }
           msgDisplay("" + ms.count, "blue");
         } else if (ms.type === "start") {
           msgDisplay("START!", "greenyellow");
-          main.netline().drawfield();
-          minobag();
+          if (role !== 'observeroom') {
+            minobag();
+          }
         } else if (ms.type === "attack") {
           const insertArray = [];
           if (lasthole != null && 0.25 < Math.random()) {
@@ -1097,8 +1163,12 @@ function battle() {
           }
           dMain.render().drawfield();
         } else if (ms.type === "field") {
-          pMain.data = ms.data;
-          pMain.render().drawfield();
+          mino_s.stage.mp2[0] = ms.data;
+          pMain.rerender();
+        } else if (ms.type === "fieldData") {
+          mino_s.stage[ms.owner][0] = ms.data;
+          main.rerender();
+          pMain.rerender();
         } else if (ms.type === "lose") {
           gamemode = "fin";
           game = false;
@@ -1116,7 +1186,7 @@ function battle() {
           setTimeout(() => {
             msgDisplay("You lose...", "blue");
             btn.innerHTML =
-              '<button type="button" onclick="conti()">つづけて誰かと対戦する</button><button type="button" onclick="full()">フルスクリーン|フルスクリーン解除</button><button onclick="startMenu()" type="button">メニューに戻る</button>';
+              '<button type="button" onclick="conti()">つづけて対戦する</button><button type="button" onclick="full()">フルスクリーン|フルスクリーン解除</button><button onclick="startMenu()" type="button">メニューに戻る</button>';
           }, 1000);
           continueperm = true;
         } else if (ms.type === "win") {
@@ -1142,18 +1212,26 @@ function battle() {
             setTimeout(() => {
               msgDisplay("You WIN!!", "greenyellow");
               btn.innerHTML =
-                '<button type="button" onclick="conti()">つづけて誰かと対戦する</button><button type="button" onclick="full()">フルスクリーン|フルスクリーン解除</button><button onclick="startMenu()" type="button">メニューに戻る</button>';
+                '<button type="button" onclick="conti()">つづけて対戦する</button><button type="button" onclick="full()">フルスクリーン|フルスクリーン解除</button><button onclick="startMenu()" type="button">メニューに戻る</button>';
             }, 1000);
             continueperm = true;
           }, 1000);
         } else if (ms.type === "chat") {
-          if (ms.owner === "わざ・お相手") {
-            msgDisplay(ms.data, "red", 2);
+          if (ms.owner == null) {
+            const d = document.createElement("div");
+            d.innerText = "サーバー: " + ms.data;
+            d.classList.add('fuchsia');
+            messageElement.appendChild(d);
+            d.scrollIntoView(false);
+          } else {
+            if (ms.owner === "わざ・お相手" || ms.owner === "わざ・2P") {
+              msgDisplay(ms.data, "red", 2);
+            }
+            const d = document.createElement("div");
+            d.innerText = ms.owner + ": " + ms.data;
+            messageElement.appendChild(d);
+            d.scrollIntoView(false);
           }
-          const d = document.createElement("div");
-          d.innerText = ms.owner + ": " + ms.data;
-          messageElement.appendChild(d);
-          d.scrollIntoView(false);
         } else if (ms.type === "disconnect") {
           msgDisplay("相手の接続が切断されました", "red");
           const d = document.createElement("div");
@@ -1164,9 +1242,9 @@ function battle() {
           send({
             type: "partnernull",
           });
-        } else if (ms.type === "continue") {
-          nowMino.landing = true;
-          battle();
+        } else if (ms.type === "goodbye") {
+          startMenu();
+          msgDisplay(ms.data, "red");
         }
       });
 
@@ -1177,6 +1255,7 @@ function battle() {
         d.innerText = "サーバーとの接続が切断されました";
         messageElement.appendChild(d);
         d.scrollIntoView(false);
+        sock = null;
       });
 
       sock.addEventListener("error", () => {
@@ -1187,18 +1266,171 @@ function battle() {
         messageElement.appendChild(d);
         d.scrollIntoView(false);
       });
+    } else {
+      if (role === 'makeroom') {
+        send({
+          type: 'makeroom',
+          mode: 'battle'
+        });
+      } else {
+        send({
+          type: 'getrooms'
+        });
+      }
+    }
+  }
+}
+
+function battle() {
+  if (gamemode !== "battle") {
+    starttime = Date.now();
+    gamemode = "battle";
+    resize();
+
+    rightLoopPerm = false;
+    rightLoopCount = 0;
+    leftLoopPerm = false;
+    leftLoopCount = 0;
+    downLoopPerm = false;
+    downLoopCount = 0;
+
+    linebreak = 0;
+
+    messageElement.innerHTML = "";
+    tech.innerHTML = "";
+    next.innerHTML = "";
+    scoreElement.innerHTML = "";
+    damageElement.innerHTML = "";
+    holdElement.innerHTML = "";
+    fieldElement.innerHTML = "";
+    partner.innerHTML = "";
+    lineElement.innerText = "0";
+    recordElement.innerHTML = "";
+    btn.innerHTML =
+      '<button type="button" onclick="full()">フルスクリーン|フルスクリーン解除</button>';
+    chatinp.value = "";
+
+    if (nextMino.length <= nextNum) {
+      while (nextMino.length <= nextNum) {
+        const mino7a = JSON.parse(JSON.stringify(mino7));
+        while (mino7a.length !== 0) {
+          nextMino.push(
+            mino7a.splice(Math.floor(Math.random() * mino7a.length), 1)[0]
+          );
+        }
+      }
+    }
+    for (let i = 0; i < 5; i++) {
+      const canvas = previewMino[nextMino[i]].canvas.cloneNode();
+      const context = canvas.getContext("2d");
+      context.drawImage(previewMino[nextMino[i]].canvas, 0, 0);
+      nextElement[i].innerHTML = "";
+      nextElement[i].appendChild(canvas);
+    }
+
+    while (nextElement.length !== 0) {
+      nextElement.shift();
+    }
+    for (let i = -1; i < nextNum; i++) {
+      const d = document.createElement("div");
+      next.appendChild(d);
+      nextElement.push(d);
+    }
+
+    if (nowMino != null) {
+      main.canvas.remove();
+      nowMino.landing = true;
+      while (nextMino.length !== 0) {
+        nextMino.shift();
+      }
+    }
+    game = true;
+    runstopbool = true;
+    btb = false;
+    score = 0;
+    ren = -1;
+    holdMino = "none";
+    permHold = true;
+    mydamage = [];
+    pixichange(multiplay_c);
+    main = new field(10, 50, fieldElement, () => {
+      game = false;
+      gameset = true;
+    }, { rerender: MP1rerender, stage: mino_s.stage.mp1 });
+    mino_s.stage.mp1[0] = main.data;
+    main.rerender();
+    if (holdMino != null) {
+      const canvas = previewMino[holdMino].canvas.cloneNode();
+      const context = canvas.getContext("2d");
+      context.drawImage(previewMino[holdMino].canvas, 0, 0);
+      holdElement.innerHTML = "";
+      holdElement.appendChild(canvas);
+    }
+    pMain = new field(10, 50, partner, null, { rerender: MP2rerender, stage: mino_s.stage.mp2 });
+    mino_s.stage.mp2[0] = pMain.data;
+    pMain.rerender();
+    dMain = new field(1, 1, damageElement);
+    dMain.netline().drawfield();
+    if (role !== 'observeroom') {
+      battleFunction = () => {
+        send({
+          type: "battle",
+          battle: "field",
+          data: mino_s.stage.mp1[0],
+        });
+      };
+      endBattleFunction = () => {
+        if (gameset && gamemode === "battle") {
+          send({
+            type: "battle",
+            battle: "lose",
+            score: score,
+          });
+        }
+      };
+      attackBattleFunction = (d) => {
+        let senddamage = d;
+        for (let i = 0; i < d && 0 < mydamage.length; i++) {
+          senddamage--;
+          mydamage.shift();
+        }
+        for (let i = 0; !(mydamage.length === 0 || 11 < i); i++) {
+          main.data.shift();
+          main.data.push(mydamage.shift());
+        }
+        if (1 === mydamage.length) {
+          dMain.data[0][0] = "i";
+        } else if (2 === mydamage.length) {
+          dMain.data[0][0] = "j";
+        } else if (3 === mydamage.length) {
+          dMain.data[0][0] = "l";
+        } else if (4 === mydamage.length) {
+          dMain.data[0][0] = "o";
+        } else if (5 === mydamage.length) {
+          dMain.data[0][0] = "s";
+        } else if (6 === mydamage.length) {
+          dMain.data[0][0] = "t";
+        } else if (7 < mydamage.length) {
+          dMain.data[0][0] = "z";
+        } else {
+          dMain.data[0][0] = "";
+        }
+        dMain.render().drawfield();
+        if (0 < senddamage) {
+          send({
+            type: "battle",
+            battle: "attack",
+            data: senddamage,
+          });
+        }
+      };
     }
   }
 }
 
 function startMenu() {
   resize();
-
-  workerFunc = null;
-  workerdata = null;
-
   if (gamemode !== "startmenu") {
-    com_run = false;
     rightLoopPerm = false;
     rightLoopCount = 0;
     leftLoopPerm = false;
@@ -1218,16 +1450,25 @@ function startMenu() {
     game = false;
     nowMino = null;
     main = null;
+    pixichange(menu_c);
+  }
+  if (sock != null) {
+    send({
+      type: 'init',
+      name: myname
+    });
+    sendChatFunction = null;
+    battleFunction = null;
+    endBattleFunction = null;
+    attackBattleFunction = null;
   }
 
   btn.innerHTML =
-    '<button onclick="full()" type="button">フルスクリーン|フルスクリーン解除</button><button onclick="start()" type="button">スタート</button><button onclick="battle()" type="button">2人で対戦</button>';
-  tech.innerHTML = "";
+    '<button onclick="full()" type="button">フルスクリーン|フルスクリーン解除</button><button onclick="start()" type="button">スタート</button><button onclick="connect(' + "'enterroom'" + ')" type="button">対戦に参加</button><button onclick="connect(' + "'makeroom'" + ')" type="button">対戦を作成</button><button onclick="connect(' + "'observeroom'" + ')" type="button">観戦</button>';
   next.innerHTML = "";
   scoreElement.innerHTML = "";
   partner.innerHTML = "";
   damageElement.innerHTML = "";
-  messageElement.innerHTML = "";
   holdElement.innerHTML = "";
   lineElement.innerText = "";
   recordElement.innerHTML = "";
@@ -1235,7 +1476,6 @@ function startMenu() {
   messageElement.innerHTML = "";
   chatElement.className = "none";
   gamemode = "startmenu";
-  backimgElement.className = "pixel";
 }
 
 let continueperm = false;
@@ -1261,11 +1501,68 @@ function full() {
 }
 
 function resize() {
-  if (innerWidth < innerHeight) {
-    gameElement.className = "flexbetween";
+  backimg_s.x = innerWidth / 2;
+  mino_s.position.sp = {
+    x: innerWidth / 2,
+    y: innerHeight / 2,
+  };
+  mino_s.position.mp1 = {
+    x: innerWidth / 4,
+    y: innerHeight / 2,
+  };
+  mino_s.position.mp2 = {
+    x: innerWidth / 4 * 3,
+    y: innerHeight / 2,
+  };
+  if (innerWidth <= 460) {
+    mino_s.position.mp1 = {
+      x: innerWidth / 2,
+      y: innerHeight / 2,
+    };
+    mino_s.position.mp2 = {
+      x: innerWidth / 2,
+      y: innerHeight / 2,
+    };
+    fieldElement.style = 'width: 140px';
+    gameElement.style = 'left:' + (innerWidth / 2 - 150) + 'px;';
+  } else if (innerWidth <= 760) {
+    mino_s.position.mp1 = {
+      x: innerWidth / 2,
+      y: innerHeight / 2,
+    };
+    mino_s.position.mp2 = {
+      x: innerWidth / 2,
+      y: innerHeight / 2,
+    };
+    fieldElement.style = '';
+    gameElement.style = 'left:' + (innerWidth / 2 - 230) + 'px;';
+  } else if (gamemode === 'normal') {
+    fieldElement.style = '';
+    gameElement.style = 'left:' + (innerWidth / 2 - 230) + 'px;';
   } else {
-    gameElement.className = "flexcenter";
+    fieldElement.style = '';
+    gameElement.style = 'left:' + (innerWidth / 10 + innerWidth / 10 * 8 / 4 - 230) + 'px;';
   }
+  for (let i1 = 0; i1 < 3; i1++) {
+    for (let i2 = 0; i2 < 22; i2++) {
+      for (let i3 = 0; i3 < 10; i3++) {
+        if (i1 === 0) {
+          const s = mino_s.sp[i2][i3];
+          s.x = mino_s.position.sp.x - 150 + 30 * i3;
+          s.y = mino_s.position.sp.y - 330 + 30 * i2;
+        } else if (i1 === 1) {
+          const s = mino_s.mp[0][i2][i3];
+          s.x = mino_s.position.mp1.x - 150 + 30 * i3;
+          s.y = mino_s.position.mp1.y - 330 + 30 * i2;
+        } else {
+          const s = mino_s.mp[1][i2][i3];
+          s.x = mino_s.position.mp2.x - 150 + 30 * i3;
+          s.y = mino_s.position.mp2.y - 330 + 30 * i2;
+        }
+      }
+    }
+  }
+
 }
 
 window.onresize = resize;

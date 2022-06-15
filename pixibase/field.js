@@ -121,9 +121,9 @@ class mino {
     angle = 0;
     tspin = false;
     miniTspin = false;
-    constructor(type, fi, landFunction, speed) {
+    constructor(type, fi, landFunction, speed, trust) {
         this.inter = setInterval(() => {
-            if (this.landing === false) {
+            if (this.landing === false && trust.trust === this) {
                 if (this.fallTimer <= 0) {
                     this.minodown();
                     this.fallTimer = 0;
@@ -131,6 +131,7 @@ class mino {
                     this.fallTimer--;
                 }
             } else {
+                this.landing = true;
                 clearInterval(this.inter);
             }
         }, speed);
@@ -140,6 +141,7 @@ class mino {
         this.width = fi.width;
         this.height = fi.height;
         this.field = fi;
+        this.trust = trust;
         if (landFunction != null) {
             this.landFunction = landFunction;
         }
